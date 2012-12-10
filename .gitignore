@@ -1,0 +1,6 @@
+.idea
+.bundle
+log/*.log
+tmp/
+.sass-cache/
+.DS_Store

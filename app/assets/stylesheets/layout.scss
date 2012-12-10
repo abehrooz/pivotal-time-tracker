@@ -1,0 +1,82 @@
+body {
+  background-color: #FAFAFA;
+}
+
+header,
+#content,
+footer {
+  width: 100%;
+  overflow: hidden;
+}
+
+.container {
+  width: 1200px;
+  margin: 0 auto;
+  position: relative;
+}
+
+header {
+  padding: 10px;
+  background-color: #256188;
+
+  a, a:hover, a:visited {
+    color: #FFFFFF;
+    text-decoration: none;
+  }
+}
+
+#sign_in {
+  width: 100%;
+  overflow: hidden;
+  padding-top: 20px;
+
+  label{
+    display: block;
+    margin-bottom: 0.5em;
+    margin-top: 0.5em;
+    font-weight: bold;
+  }
+
+  legend{
+    font-weight: normal;
+  }
+
+  #via_username_password {
+    display: block;
+    float: left;
+    width: 349px;
+    padding: 20px 50px;
+    border-right: 1px solid #808080;
+  }
+
+  #via_api_token {
+    display: block;
+    float: left;
+    width: 350px;
+    padding: 20px 50px;
+  }
+}
+
+a.logout{
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-size: x-small;
+}
+
+div.notice, div.alert{
+  text-align: center;
+  background: #FFE87C;
+  font-weight: bold;
+  padding: 0.5em;
+  border: 1px solid #CDB64A;
+  margin: 0.5em;
+}
+
+div.notice {
+  color: green;
+}
+
+div.alert{
+  color: red;
+}

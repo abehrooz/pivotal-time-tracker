@@ -1,0 +1,8 @@
+%div.chart-container{:id => chart_id }
+  %div{:id => "#{chart_id}_chart"}
+    = render_chart chart, "#{chart_id}_chart"
+  - unless chart.description.empty?
+    %div.tooltip_hotspot
+      = image_tag 'circle_question_mark.png', size: '13x13'
+    %div.tooltip
+      != chart.description

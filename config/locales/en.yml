@@ -1,0 +1,12 @@
+# Sample localization file for English. Add more files in this directory for other locales.
+# See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
+
+en:
+  story_types_time_chart_desc: "Shows the percentage of time spent on different story types."
+  impediments_time_chart_desc: "Shows the percentage of time spent on planned and unplanned stories."
+  estimation_time_chart_desc: "Shows the estimated/real time spend on stories."
+  accepted_story_types_chart_desc: "Shows breakdown of story types in the project."
+  discovery_and_acceptance_chart_desc: "Shows how many stories discovered during an iteration were finally accepted."
+  acceptance_days_by_iteration_chart_desc: "Shows number of days between when stories are discovered to when they are finally accepted."
+  acceptance_by_days_chart_desc: "Shows number of stories that took a particular duration (in days) to be accepted."
+  velocity_chart_desc: "Shows total amount of story points accepted per iteration."

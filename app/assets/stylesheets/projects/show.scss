@@ -1,0 +1,106 @@
+#iteration-range{
+  margin-top: 3px;
+}
+
+.hasDatepicker, .btn{
+  position: relative;
+  z-index: 1;
+}
+
+div.chart-container {
+  position: relative;
+
+  div.tooltip_hotspot{
+    right: 0;
+    top: 0;
+    cursor: pointer;
+    position: absolute;
+    margin: 5px;
+  }
+}
+
+div.table-container {
+  position: relative;
+
+  div.tooltip_hotspot{
+    right: 0;
+    top: 0;
+    cursor: pointer;
+    position: absolute;
+    margin: 5px;
+  }
+}
+
+.tooltip {
+  $padding: 25px;
+	display: none;
+	background: transparent url(/assets/jquerytools/white-small-tooltip.png);
+	font-size: 12px;
+	height: 109px - 2 * $padding;
+	width: 209px - 2 * $padding;
+	padding: $padding;
+	color: #000;
+}
+
+.StyleRows {
+  font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+  font-size: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 8px !important;
+  background: #e8edff;
+  border-bottom: 1px solid #fff;
+  color: #669;
+  border-top: 1px solid transparent;
+}
+
+.StyleAlternativeRows {
+  font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+  font-size: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 8px !important;
+  background-color: white !important;
+  border-bottom: 1px solid #fff;
+  color: #669;
+  border-top: 1px solid transparent;
+}
+
+.StyleRowHover {
+  font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+  font-size: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 8px !important;
+  border-bottom: 1px solid #fff;
+  border-top: 1px solid transparent;
+  background: #d0dafd;
+  color: #339;
+}
+
+.StyleSelectedRow {
+  font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+  font-size: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 8px !important;
+  border-bottom: 1px solid #fff;
+  border-top: 1px solid transparent;
+  background: #afb7da;
+  color: #339;
+}
+
+.StyleTableCell {
+  border: 1px solid #eee;
+  padding: 8px !important;
+  text-align: center;
+}
+
+h2 {
+  font-size: 16px;
+  margin-top: 20px;
+  font-weight: bold;
+}
+
+
+

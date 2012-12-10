@@ -1,0 +1,10 @@
+%div.table-container{:id => table_id }
+  - unless table.title.empty?
+    %h2 "#{table.title}"
+  %div{:id => "#{table_id}_chart"}
+    = render_chart table, "#{table_id}_chart"
+  - unless table.description.empty?
+    %div.tooltip_hotspot
+      = image_tag 'circle_question_mark.png', size: '13x13'
+    %div.tooltip
+      != table.description

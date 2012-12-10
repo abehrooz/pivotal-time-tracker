@@ -1,0 +1,22 @@
+!!!
+%html
+  %head
+    %title Pivotal Time Tracker
+    = stylesheet_link_tag "application"
+    = javascript_include_tag "application"
+    %link(rel="shortcut icon" href="/assets/favicon.ico")
+    %script{src: 'http://www.google.com/jsapi'}
+    = csrf_meta_tags
+  %body
+    %header
+      .container
+        %h1= link_to "Pivotal Time Tracker", projects_path
+        - if authorized?
+          = link_to "Logout", logout_path, method: :delete, class: "logout"
+    #content
+      .container
+        - if flash[:notice]
+          %div.notice= flash[:notice]
+        - if flash[:alert]
+          %div.alert= flash[:alert]
+        = yield
