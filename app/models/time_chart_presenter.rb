@@ -100,7 +100,7 @@ class TimeChartPresenter
 
     Story::ALL_STORY_TYPES.each do |type|
       colors << STORY_TYPE_COLORS[type][:default]
-      data_table.add_row([type.pluralize.capitalize, time_spent_on_stories_with_types_labels_owner([type])])
+      data_table.add_row([type.pluralize.capitalize, time_spent_on_stories(filter_stories(@story_times, [type]))])
     end
 
     opts = {
@@ -124,7 +124,7 @@ class TimeChartPresenter
 
     Story::ALL_STORY_TYPES.each do |type|
       colors << STORY_TYPE_COLORS[type][:default]
-      data_table.add_row([type.pluralize.capitalize, accepted_stories_types([type]).size])
+      data_table.add_row([type.pluralize.capitalize, filter_stories(@active_stories, [type], ["accepted"]).size])
     end
 
     opts = {
@@ -144,10 +144,10 @@ class TimeChartPresenter
     data_table.new_column('number', 'Time')
 
     colors << '#B22222'
-    data_table.add_row(["Unplanned".capitalize, time_spent_on_impediments])
+    data_table.add_row(["Unplanned".capitalize, time_spent_on_stories(impediments)])
 
     colors << '#33CD33'
-    data_table.add_row(["Planned".capitalize, time_spent_on_planned_stories])
+    data_table.add_row(["Planned".capitalize, time_spent_on_stories(planned_stories)])
 
     opts = {
         :width => DEF_CHART_WIDTH,
@@ -212,18 +212,18 @@ class TimeChartPresenter
 
     colors << '#B22222'
     colors << '#33CD33'
-    accepted_stories_types([Story::FEATURE]).each do |story|
+    filter_stories(@story_times, [Story::FEATURE], ["accepted"]).each do |story, time|
       next unless story.respond_to?('estimate')
       next if story.estimate == 0
       puts "Calculating accurcacy of story: #{story.id}"
       storyLink = "<a href='https://www.pivotaltracker.com/story/show/#{story.id}'>#{story.name.delete("\n")}</a>"
-      accuracy = (100 - ((@story_times[story].to_f / (story.estimate * 4).to_f) * 100).to_int) * -1
+      accuracy = (100 - ((time.to_f / (story.estimate * 4).to_f) * 100).to_int) * -1
       labels_s = generate_labels_string(story)
       puts "Story: #{story.id}, accuracy:#{accuracy}";
       data_table.add_row([{:v => storyLink, :p => {:style => 'text-align: left;'}},
                           labels_s,
                           story.estimate * 4,
-                          @story_times[story],
+                          time,
                           accuracy])
     end
     puts "finished calculating the estimation accuracy."
@@ -254,7 +254,7 @@ class TimeChartPresenter
 
     Story::ALL_STORY_TYPES.each do |type|
       colors << STORY_TYPE_COLORS[type][:default]
-      data_table.add_row([type.pluralize.capitalize, time_spent_on_stories_with_types_labels_owner([type], ["tkab"])])
+      data_table.add_row([type.pluralize.capitalize, time_spent_on_stories(filter_stories(@story_times, [type], [], ["tkab"]))])
     end
 
     opts = {
@@ -272,14 +272,13 @@ class TimeChartPresenter
 
 
   def tkab_features_time_chart(title = "TKAB Features Time Chart")
-    #colors = []
     data_table = GoogleVisualr::DataTable.new
     data_table.new_column('string', 'Feature')
     data_table.new_column('number', 'Time')
 
     TKAB_FEATURE_LABELS.each do |label|
       #colors << STORY_TYPE_COLORS[type][:default]
-      data_table.add_row([label, time_spent_on_stories_with_types_labels_owner(DEFAULT_STORY_TYPES, ["tkab", label])])
+      data_table.add_row([label, time_spent_on_stories(filter_stories(@story_times, DEFAULT_STORY_TYPES, [], ["tkab", label]))])
     end
 
     opts = {
@@ -300,7 +299,7 @@ class TimeChartPresenter
     data_table.new_column('number', 'Time')
 
     tkab_developers = []
-    active_stories_with_types_labels_owner(DEFAULT_STORY_TYPES, ["tkab"]).each do |story|
+    filter_stories(@active_stories,DEFAULT_STORY_TYPES,[], ["tkab"]).each do |story|
       if story.respond_to?('owned_by') &&  !tkab_developers.include?(story.owned_by.person.initials)
         tkab_developers <<  story.owned_by.person.initials
       end
@@ -308,7 +307,7 @@ class TimeChartPresenter
 
 
     tkab_developers.each do |developer|
-      data_table.add_row([developer, time_spent_on_stories_with_types_labels_owner(DEFAULT_STORY_TYPES, ["tkab"], developer)])
+      data_table.add_row([developer, time_spent_on_stories(filter_stories(@story_times, DEFAULT_STORY_TYPES, [], ["tkab"], developer))])
     end
 
     opts = {
@@ -326,7 +325,6 @@ class TimeChartPresenter
 
 
   def tkab_stories_table(title= "TKAB Stories")
-    colors = []
     data_table = GoogleVisualr::DataTable.new
     data_table.new_column('string', 'Date')
     data_table.new_column('string', 'Story Name')
@@ -338,7 +336,7 @@ class TimeChartPresenter
 
     total_estimate = 0;
     total_real = 0;
-    stories_with_label("tkab").each do |story, time|
+    filter_stories(@story_times,[],[],["tkab"] ).each do |story, time|
       next if time == 0
       storyLink = "<a href='https://www.pivotaltracker.com/story/show/#{story.id}'>#{story.name}</a>"
       estimate = story.respond_to?('estimate') ? story.estimate * 4 : 0
@@ -377,34 +375,17 @@ class TimeChartPresenter
   end
 
 
-  def generate_labels_string(story)
-    labels = story.respond_to?('labels') ? story.labels : ""
-    labels_s = ""
-    labels.split(',').each do |label|
-      if (DEVELOPMENT_TRACK_LABELS.include?(label))
-        labels_s += label + ","
-      end
-    end
-    labels_s.chomp(",")
-  end
-
-
   #Private methods
 
   def is_story_active(story)
-    #puts "Checking if story is active. Story name: #{story.name}, state: #{story.current_state}, updated at: #{story.updated_at}"
     case story.current_state
       when "accepted"
-        #puts (story.accepted_at > @start_date)
         return (story.accepted_at > @start_date && story.accepted_at.to_date <= @end_date.to_date)
       when "unstarted"
-        #puts @current_iteration.present? ? @current_iteration.stories.include?(story): false;
         return @current_iteration.present? ? @current_iteration.stories.include?(story) : false;
       when "unscheduled"
-        #puts false
         return false
       else
-        #puts (story.updated_at > @start_date && story.updated_at.to_date <= @end_date.to_date)
         return (story.updated_at > @start_date && story.updated_at.to_date <= @end_date.to_date)
     end
   end
@@ -488,70 +469,44 @@ class TimeChartPresenter
     return raw_time_diff
   end
 
-  def accepted_stories_types(types)
-    stories_with_types_states(types, ["accepted"])
+  def generate_labels_string(story)
+    labels = story.respond_to?('labels') ? story.labels : ""
+    labels_s = ""
+    labels.split(',').each do |label|
+      if (DEVELOPMENT_TRACK_LABELS.include?(label))
+        labels_s += label + ","
+      end
+    end
+    labels_s.chomp(",")
   end
 
-  def stories_with_types_states(types, states)
-    @active_stories.select do |story|
-      (types.present? ? types.include?(story.story_type) : true) && (states.present? ? states.include?(story.current_state) : true)
+  def filter_stories(stories,types = [], states = [], labels = [], owner = "")
+    stories.select do |story|
+      next unless types.size == 0  || (story.respond_to?('story_type') ?  types.include?(story.story_type) : false)
+      next unless states.size == 0 || (story.respond_to?('current_state') ?  states.include?(story.current_state) : false)
+      next unless labels.size == 0 || (story.respond_to?('labels') ? (labels - story.labels.split(',')).size == 0: false)
+      next unless owner.empty?     || ( story.respond_to?('owned_by') ? story.owned_by.person.initials == owner  : false)
+      true
     end
   end
 
-  def stories_with_label(label)
-    @story_times.select do |story|
-      story_respond_to = story.respond_to?('labels')
-      labels = story_respond_to ? story.labels : "";
-      labels_include =  label.empty? || (!label.empty? && labels.include?(label))
-      (!label.empty? ? labels_include : true)
-    end
-  end
-
-
-  def time_spent_on_stories_with_types_labels_owner(types, labels = [], owner ="")
-    puts "calculating time spent on stories from type: #{types}, label: #{labels}"
+  def time_spent_on_stories(story_times)
     result = 0;
-    active_stories_with_types_labels_owner(types, labels, owner).each do |story|
-      result += @story_times[story]
+    story_times.each do |story, time|
+      result += time
     end
-    puts "Total: #{result}"
     return result;
   end
 
-  def time_spent_on_impediments()
-    puts "calculating time spent on impediments."
-    result = 0
-    impediments.each do |story, time|
-      puts "Addind #{time} to impediments time"
-      result += time
-    end
-    puts "Total: #{result}"
-    return result
-  end
-
   def impediments()
-    @story_times.select do |story|
+    @story_times.select do |story, time|
       story.created_at >= @start_date
     end
   end
 
-  def time_spent_on_planned_stories()
-    puts "calculating time spent on planned stories."
-    result = 0;
-    @story_times.each do |story, time|
-      next if story.created_at >= @start_date
-      puts "Addind #{time} to stories time";
-      result += time
-    end
-    puts "Total: #{result}"
-    return result;
-  end
-
-  def active_stories_with_types_labels_owner(types, labels = [], owner = "")
-    @active_stories.select do |story|
-      story_has_labels = (labels - (story.respond_to?('labels') ? story.labels.split(',') : [])).size == 0
-      story_has_owner = owner.empty? ? true: ( story.respond_to?('owned_by') ? story.owned_by.person.initials == owner  : false)
-      (types.present? ? types.include?(story.story_type)&& story_has_labels && story_has_owner : true)
+  def planned_stories()
+    @story_times.select do |story, time|
+      story.created_at < @start_date
     end
   end
 

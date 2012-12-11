@@ -18,7 +18,7 @@ class ProjectsController < ApplicationController
     #@velocity_range_chart = chart_presenter.whole_project_velocity_chart()
     #@velocity_range_chart.description = ""
 
-    @impediments = time_chart_presenter.impediments
+    #@impediments = time_chart_presenter.impediments
     @charts = []
     @charts << time_chart_presenter.tkab_story_types_time_chart
     @charts << time_chart_presenter.tkab_features_time_chart
