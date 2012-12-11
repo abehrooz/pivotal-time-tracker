@@ -37,6 +37,16 @@ class TimeChartPresenter
       "doc"
   ]
 
+  TKAB_FEATURE_LABELS = [
+      "utin",
+      "vehicle damage",
+      "logged-in-users",
+      "opera",
+      "admin-data",
+      "android",
+      "ios"
+  ]
+
   STORY_TYPE_COLORS = {
       Story::FEATURE => {default: '#3366CC', additional: '#80b3ff'},
       #FEATURE => {default: '#000000', additional: '#80b3ff'},
@@ -90,7 +100,7 @@ class TimeChartPresenter
 
     Story::ALL_STORY_TYPES.each do |type|
       colors << STORY_TYPE_COLORS[type][:default]
-      data_table.add_row([type.pluralize.capitalize, time_spent_on_stories_with_types([type])])
+      data_table.add_row([type.pluralize.capitalize, time_spent_on_stories_with_types_labels_owner([type])])
     end
 
     opts = {
@@ -208,8 +218,7 @@ class TimeChartPresenter
       puts "Calculating accurcacy of story: #{story.id}"
       storyLink = "<a href='https://www.pivotaltracker.com/story/show/#{story.id}'>#{story.name.delete("\n")}</a>"
       accuracy = (100 - ((@story_times[story].to_f / (story.estimate * 4).to_f) * 100).to_int) * -1
-      #labels_s = generate_labels_string(story)
-      labels_s = "labels"
+      labels_s = generate_labels_string(story)
       puts "Story: #{story.id}, accuracy:#{accuracy}";
       data_table.add_row([{:v => storyLink, :p => {:style => 'text-align: left;'}},
                           labels_s,
@@ -236,6 +245,137 @@ class TimeChartPresenter
     )
 
   end
+
+  def tkab_story_types_time_chart(title = "TKAB Story Types Time Chart")
+    colors = []
+    data_table = GoogleVisualr::DataTable.new
+    data_table.new_column('string', 'Story Type')
+    data_table.new_column('number', 'Time')
+
+    Story::ALL_STORY_TYPES.each do |type|
+      colors << STORY_TYPE_COLORS[type][:default]
+      data_table.add_row([type.pluralize.capitalize, time_spent_on_stories_with_types_labels_owner([type], ["tkab"])])
+    end
+
+    opts = {
+        :width => DEF_CHART_WIDTH,
+        :height => DEF_CHART_HEIGHT,
+        :title => title,
+        :colors => colors}
+
+    TimeChartWrapper.new(
+        GoogleVisualr::Interactive::PieChart.new(data_table, opts),
+        I18n.t(:story_types_time_chart_desc),
+        title
+    )
+  end
+
+
+  def tkab_features_time_chart(title = "TKAB Features Time Chart")
+    #colors = []
+    data_table = GoogleVisualr::DataTable.new
+    data_table.new_column('string', 'Feature')
+    data_table.new_column('number', 'Time')
+
+    TKAB_FEATURE_LABELS.each do |label|
+      #colors << STORY_TYPE_COLORS[type][:default]
+      data_table.add_row([label, time_spent_on_stories_with_types_labels_owner(DEFAULT_STORY_TYPES, ["tkab", label])])
+    end
+
+    opts = {
+        :width => DEF_CHART_WIDTH,
+        :height => DEF_CHART_HEIGHT,
+        :title => title}
+
+    TimeChartWrapper.new(
+        GoogleVisualr::Interactive::PieChart.new(data_table, opts),
+        I18n.t(:features_time_chart_desc),
+        title
+    )
+  end
+
+  def tkab_developers_time_chart(title = "TKAB Developers Time Chart")
+    data_table = GoogleVisualr::DataTable.new
+    data_table.new_column('string', 'Developer')
+    data_table.new_column('number', 'Time')
+
+    tkab_developers = []
+    active_stories_with_types_labels_owner(DEFAULT_STORY_TYPES, ["tkab"]).each do |story|
+      if story.respond_to?('owned_by') &&  !tkab_developers.include?(story.owned_by.person.initials)
+        tkab_developers <<  story.owned_by.person.initials
+      end
+    end
+
+
+    tkab_developers.each do |developer|
+      data_table.add_row([developer, time_spent_on_stories_with_types_labels_owner(DEFAULT_STORY_TYPES, ["tkab"], developer)])
+    end
+
+    opts = {
+        :width => DEF_CHART_WIDTH,
+        :height => DEF_CHART_HEIGHT,
+        :title => title}
+
+    TimeChartWrapper.new(
+        GoogleVisualr::Interactive::PieChart.new(data_table, opts),
+        I18n.t(:features_time_chart_desc),
+        title
+    )
+  end
+
+
+
+  def tkab_stories_table(title= "TKAB Stories")
+    colors = []
+    data_table = GoogleVisualr::DataTable.new
+    data_table.new_column('string', 'Date')
+    data_table.new_column('string', 'Story Name')
+    data_table.new_column('string', 'State')
+    data_table.new_column('string', 'Developer')
+    data_table.new_column('string', 'Track')
+    data_table.new_column('number', 'Estimate(H)')
+    data_table.new_column('number', 'Time(H)')
+
+    total_estimate = 0;
+    total_real = 0;
+    stories_with_label("tkab").each do |story, time|
+      next if time == 0
+      storyLink = "<a href='https://www.pivotaltracker.com/story/show/#{story.id}'>#{story.name}</a>"
+      estimate = story.respond_to?('estimate') ? story.estimate * 4 : 0
+      total_estimate += estimate;
+      total_real += time;
+      data_table.add_row([story.respond_to?('accepted_at') ? story.accepted_at.to_date.to_s : "",
+                          {:v => storyLink, :p => {:style => 'text-align: left;'}},
+                          story.current_state,
+                          story.respond_to?('owned_by') ? story.owned_by.person.initials : "",
+                          generate_labels_string(story),
+                          estimate,
+                          time])
+    end
+    data_table.add_row(["",
+                        {:v => "Total", :p => {:style => 'font-weight: bold; text-align: left;'}},
+                        "",
+                        "",
+                        "",
+                        total_estimate,
+                        total_real])
+    opts = {
+        :allowHtml => true,
+        :showRowNumber => true,
+        :cssClassNames => {tableRow: 'StyleRows',
+                           hoverTableRow: 'StyleRowHover',
+                           oddTableRow: 'StyleAlternativeRows',
+                           selectedTableRow: 'StyleSelectedRow',
+                           tableCell: 'StyleTableCell'}}
+
+    TimeChartWrapper.new(
+        GoogleVisualr::Interactive::Table.new(data_table, opts),
+        "Shows the distribution of time spent on unplanned stories",
+        title
+    )
+
+  end
+
 
   def generate_labels_string(story)
     labels = story.respond_to?('labels') ? story.labels : ""
@@ -358,11 +498,20 @@ class TimeChartPresenter
     end
   end
 
+  def stories_with_label(label)
+    @story_times.select do |story|
+      story_respond_to = story.respond_to?('labels')
+      labels = story_respond_to ? story.labels : "";
+      labels_include =  label.empty? || (!label.empty? && labels.include?(label))
+      (!label.empty? ? labels_include : true)
+    end
+  end
 
-  def time_spent_on_stories_with_types(types)
-    puts "calculating time spent on stories from type: #{types}"
+
+  def time_spent_on_stories_with_types_labels_owner(types, labels = [], owner ="")
+    puts "calculating time spent on stories from type: #{types}, label: #{labels}"
     result = 0;
-    active_stories_with_types(types).each do |story|
+    active_stories_with_types_labels_owner(types, labels, owner).each do |story|
       result += @story_times[story]
     end
     puts "Total: #{result}"
@@ -398,10 +547,13 @@ class TimeChartPresenter
     return result;
   end
 
-  def active_stories_with_types(types)
+  def active_stories_with_types_labels_owner(types, labels = [], owner = "")
     @active_stories.select do |story|
-      (types.present? ? types.include?(story.story_type) : true)
+      story_has_labels = (labels - (story.respond_to?('labels') ? story.labels.split(',') : [])).size == 0
+      story_has_owner = owner.empty? ? true: ( story.respond_to?('owned_by') ? story.owned_by.person.initials == owner  : false)
+      (types.present? ? types.include?(story.story_type)&& story_has_labels && story_has_owner : true)
     end
   end
+
 
 end

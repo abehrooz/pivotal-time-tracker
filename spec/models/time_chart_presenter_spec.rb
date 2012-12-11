@@ -68,7 +68,7 @@ describe TimeChartPresenter do
             :current_state => "accepted",
             :accepted_at => DateTime.parse("2012-01-13 15:01:00 UTC"),
             :estimate => 2,
-            :labels => "label1,backend,showroom,ios",
+            :labels => "label1,backend,showroom,ios,tkab",
             :accepted? => true,
             :activities => [# Time spent on this story --> 7 hrs / 7 hrs
                 double(
@@ -135,6 +135,7 @@ describe TimeChartPresenter do
             :updated_at => DateTime.parse("2012-01-12 13:02:00 UTC"),
             :current_state => "delivered",
             :estimate => 3,
+            :labels => "label1,backend,showroom,ios,aiq8",
             :accepted? => false,
             :activities => [# Time spent on this story --> 1d / 8 hrs
                 double(
@@ -226,6 +227,7 @@ describe TimeChartPresenter do
             :created_at => DateTime.parse("2012-01-04 10:01:00 UTC"), # -> planned
             :updated_at => DateTime.parse("2012-01-16 15:00:00 UTC"),
             :current_state => "finished",
+            :labels => "label1,backend,tkab",
             :accepted? => false,
             :activities => [# Time spent on this story -->  3d 4h + 4h - 2d(weekend)  = 16
                 double(
@@ -395,6 +397,7 @@ describe TimeChartPresenter do
             :created_at => DateTime.parse("2012-01-14 10:01:00 UTC"), # -> impediment
             :updated_at => DateTime.parse("2012-01-17 09:00:00 UTC"),
             :current_state => "finished", #
+            :labels => "opera,tkab",
             :accepted? => false,
             :activities => [# Time spent on this story -->  1d 6h  = 14h
                 double(
@@ -837,6 +840,30 @@ describe TimeChartPresenter do
         rows.length.should ==  2
         row_values(rows, 0).should == ["<a href='https://www.pivotaltracker.com/story/show/2'>story2</a>","backend,ios",  8, 7, -13]
         row_values(rows, 1).should == ["<a href='https://www.pivotaltracker.com/story/show/7'>story7</a>","",  20, 4, -80]
+
+      end
+    end
+
+  end
+
+  context "tkab charts" do
+    let(:chart) { @chart_presenter.send(chart_method) }
+
+    before do
+      @chart_presenter = TimeChartPresenter.new(@iterations, @sample_stories, Date.parse("2012-01-10"), Date.parse("2012-01-20"))
+    end
+
+    describe "#tkab_story_types_time_chart" do
+      let(:chart_method) { "tkab_story_types_time_chart" }
+
+      it_should_behave_like "a chart generation method"
+
+      it "produces a chart" do
+        rows = chart.data_table.rows
+
+        row_values(rows, 0).should == ["Features", 7] # 7
+        row_values(rows, 1).should == ["Bugs", 14]     # 14
+        row_values(rows, 2).should == ["Chores", 16]   # 16
 
       end
     end

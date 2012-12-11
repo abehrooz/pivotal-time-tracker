@@ -4,7 +4,7 @@ describe TrackerResource do
   describe "#find" do
     let(:api_token)   { "123456" }
     let(:session_key) { "#{api_token}-7890" }
-    let(:cache_key) { "TrackerResource-#{session_key}-[:all]" }
+    let(:cache_key) { "TrackerResource-[:all]" }
 
     before do
       TrackerResource.init_session(api_token, session_key)

@@ -9,9 +9,10 @@ class ProjectsController < ApplicationController
   def show
     stories = @project.stories
     iterations = @project.iterations
+    #memberships = @project.memberships
 
     #chart_presenter = ChartPresenter.new(iterations, stories, @start_date, @end_date)
-    time_chart_presenter = TimeChartPresenter.new(iterations, stories, @start_date, @end_date)
+    time_chart_presenter = TimeChartPresenter.new( iterations, stories, @start_date, @end_date)
     #@active_iterations = time_chart_presenter.active_iterations
 
     #@velocity_range_chart = chart_presenter.whole_project_velocity_chart()
@@ -19,16 +20,28 @@ class ProjectsController < ApplicationController
 
     @impediments = time_chart_presenter.impediments
     @charts = []
-    @charts << time_chart_presenter.accepted_story_types_chart
+    @charts << time_chart_presenter.tkab_story_types_time_chart
+    @charts << time_chart_presenter.tkab_features_time_chart
+    @charts << time_chart_presenter.tkab_developers_time_chart
 
-    @charts << time_chart_presenter.story_types_time_chart
+    #@charts << time_chart_presenter.story_types_time_chart
 
-    @charts << time_chart_presenter.impediments_time_chart
+    #@charts << time_chart_presenter.impediments_time_chart
 
     @tables = []
-    @tables << time_chart_presenter.unplanned_stories_table
+    #@tables << time_chart_presenter.unplanned_stories_table
 
-    @tables << time_chart_presenter.estimation_time_chart
+    #@tables << time_chart_presenter.estimation_time_chart
+
+    @tables << time_chart_presenter.tkab_stories_table
+
+    #@tkab_charts = []
+    #@tkab_charts << time_chart_presenter.tkab_story_types_time_chart
+    #@tkab_charts = time_chart_presenter.tkab_features_time_chart
+    #@tkab_charts = time_chart_presenter.tkab_developers_time_chart
+
+
+
 
     #@charts << chart_presenter.acceptance_by_days_chart
     #@charts << chart_presenter.acceptance_days_by_iteration_chart
@@ -47,7 +60,8 @@ class ProjectsController < ApplicationController
 
   def init_project_and_date_range
     @project  = Project.find(params[:id].to_i)
-    valid_iterations = @project.iterations.select do |it|
+    iterations = @project.iterations
+    valid_iterations = iterations.select do |it|
       (it.finish_date > Time.now.to_date) && (it.start_date <= Time.now.to_date)
     end
     current_iteration = valid_iterations.first

@@ -32,10 +32,8 @@
       %td
         = render :partial => 'shared/chart', locals: {chart: chart, chart_id: "chart_#{idx}"}
 
--#
--#- @charts.each_with_index do |chart, idx|
--#  = render :partial => 'shared/chart', locals: {chart: chart, chart_id: "chart_#{idx}"}
-
 - @tables.each_with_index do |table, idx|
   = render :partial => 'shared/table', locals: {table: table, table_id: "table_#{idx}"}
 
+-#- @tkab_charts.each_with_index do |chart, idx|
+-#  = render :partial => 'shared/chart', locals: {chart: chart, chart_id: "tkab_chart_#{idx}"}
