@@ -206,7 +206,7 @@ class TimeChartPresenter
     data_table.new_column('number', 'Change(%)')
 
     formatter = GoogleVisualr::BarFormat.new( { :width => 150 } )
-    formatter.columns(4) # Apply to 2nd Column
+    formatter.columns(4)
 
     data_table.format(formatter)
 
@@ -219,14 +219,14 @@ class TimeChartPresenter
       storyLink = "<a href='https://www.pivotaltracker.com/story/show/#{story.id}'>#{story.name.delete("\n")}</a>"
       accuracy = (100 - ((time.to_f / (story.estimate * 4).to_f) * 100).to_int) * -1
       labels_s = generate_labels_string(story)
-      puts "Story: #{story.id}, accuracy:#{accuracy}";
+      puts "Story: #{story.id}, change:#{accuracy}";
       data_table.add_row([{:v => storyLink, :p => {:style => 'text-align: left;'}},
                           labels_s,
                           story.estimate * 4,
                           time,
                           accuracy])
     end
-    puts "finished calculating the estimation accuracy."
+    puts "finished calculating the estimation change."
 
     opts = {
         :colors => colors,
@@ -277,7 +277,6 @@ class TimeChartPresenter
     data_table.new_column('number', 'Time')
 
     TKAB_FEATURE_LABELS.each do |label|
-      #colors << STORY_TYPE_COLORS[type][:default]
       data_table.add_row([label, time_spent_on_stories(filter_stories(@story_times, DEFAULT_STORY_TYPES, [], ["tkab", label]))])
     end
 
@@ -333,22 +332,32 @@ class TimeChartPresenter
     data_table.new_column('string', 'Track')
     data_table.new_column('number', 'Estimate(H)')
     data_table.new_column('number', 'Time(H)')
+    data_table.new_column('number', 'Change(%)')
+
+    formatter = GoogleVisualr::BarFormat.new( { :width => 150 } )
+    formatter.columns(7)
+
+    data_table.format(formatter)
 
     total_estimate = 0;
     total_real = 0;
+    changes = []
     filter_stories(@story_times,[],[],["tkab"] ).each do |story, time|
-      next if time == 0
       storyLink = "<a href='https://www.pivotaltracker.com/story/show/#{story.id}'>#{story.name}</a>"
-      estimate = story.respond_to?('estimate') ? story.estimate * 4 : 0
+      estimate = story.respond_to?('estimate') ? (story.estimate == -1 ? 0: story.estimate) * 4 : 0
+      change = estimate == 0 ? 0 : (100 - ((time.to_f / (estimate).to_f) * 100).to_int) * -1
+      changes << change
       total_estimate += estimate;
       total_real += time;
-      data_table.add_row([story.respond_to?('accepted_at') ? story.accepted_at.to_date.to_s : "",
+      date = story.respond_to?('accepted_at') ? story.accepted_at.to_date.to_s : ""
+      data_table.add_row([{:v => date, :p => {:width => 100}},
                           {:v => storyLink, :p => {:style => 'text-align: left;'}},
                           story.current_state,
                           story.respond_to?('owned_by') ? story.owned_by.person.initials : "",
                           generate_labels_string(story),
                           estimate,
-                          time])
+                          time,
+                          change])
     end
     data_table.add_row(["",
                         {:v => "Total", :p => {:style => 'font-weight: bold; text-align: left;'}},
@@ -356,7 +365,8 @@ class TimeChartPresenter
                         "",
                         "",
                         total_estimate,
-                        total_real])
+                        total_real,
+                        changes == 0 ? 0 : changes.inject(:+).to_f/changes.length])
     opts = {
         :allowHtml => true,
         :showRowNumber => true,
