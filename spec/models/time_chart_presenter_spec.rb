@@ -68,7 +68,7 @@ describe TimeChartPresenter do
             :current_state => "accepted",
             :accepted_at => DateTime.parse("2012-01-13 15:01:00 UTC"),
             :estimate => 2,
-            :labels => "label1,backend,showroom,ios,tkab",
+            :labels => "feature1,backend,showroom,ios,filter1",
             :accepted? => true,
             :activities => [# Time spent on this story --> 7 hrs / 7 hrs
                 double(
@@ -135,7 +135,7 @@ describe TimeChartPresenter do
             :updated_at => DateTime.parse("2012-01-12 13:02:00 UTC"),
             :current_state => "delivered",
             :estimate => 3,
-            :labels => "label1,backend,showroom,ios,aiq8",
+            :labels => "feature1,backend,showroom,ios,aiq8",
             :accepted? => false,
             :activities => [# Time spent on this story --> 1d / 8 hrs
                 double(
@@ -177,6 +177,7 @@ describe TimeChartPresenter do
             :created_at => DateTime.parse("2012-01-03 10:01:00 UTC"), # -> planned
             :updated_at => DateTime.parse("2012-01-12 13:02:00 UTC"),
             :current_state => "rejected",
+            :labels => "feature2,backend",
             :estimate => 4,
             :accepted? => false,
             :activities => [# Time spent on this story --> 4 hrs
@@ -227,7 +228,7 @@ describe TimeChartPresenter do
             :created_at => DateTime.parse("2012-01-04 10:01:00 UTC"), # -> planned
             :updated_at => DateTime.parse("2012-01-16 15:00:00 UTC"),
             :current_state => "finished",
-            :labels => "label1,backend,tkab",
+            :labels => "feature3,backend,filter1",
             :accepted? => false,
             :activities => [# Time spent on this story -->  3d 4h + 4h - 2d(weekend)  = 16
                 double(
@@ -278,6 +279,7 @@ describe TimeChartPresenter do
             :created_at => DateTime.parse("2012-01-05 10:01:00 UTC"), # -> planned
             :updated_at => DateTime.parse("2012-01-16 10:00:00 UTC"),
             :current_state => "started", #
+            :labels => "feature3,android",
             :accepted? => false,
             :activities => [# Time spent on this story -->  1d / 8h
                 double(
@@ -304,6 +306,7 @@ describe TimeChartPresenter do
             :updated_at => DateTime.parse("2012-01-13 15:01:00 UTC"),
             :current_state => "accepted",
             :accepted_at => DateTime.parse("2012-01-13 15:01:00 UTC"),
+            :labels => "feature3,ios",
             :estimate => 5,
             :accepted? => true,
             :activities => [# Time spent on this story --> 4 hrs / 4 hrs
@@ -396,8 +399,8 @@ describe TimeChartPresenter do
             :story_type => Story::BUG,
             :created_at => DateTime.parse("2012-01-14 10:01:00 UTC"), # -> impediment
             :updated_at => DateTime.parse("2012-01-17 09:00:00 UTC"),
-            :current_state => "finished", #
-            :labels => "opera,tkab",
+            :current_state => "unstarted", #
+            :labels => "opera,filter1",
             :accepted? => false,
             :activities => [# Time spent on this story -->  1d 6h  = 14h
                 double(
@@ -419,7 +422,7 @@ describe TimeChartPresenter do
                     :event_type => "story_update",
                     :description => "James Kirk created the story",
                     :stories => [double(
-                                     :current_state => "finished"
+                                     :current_state => "unstarted"
                                  )]
                 )
             ]
@@ -535,6 +538,33 @@ describe TimeChartPresenter do
                 )
             ]
         ) ,
+        double(
+            :id => 12,
+            :name => "story12",
+
+            :story_type => Story::BUG,
+            :created_at => DateTime.parse("2012-01-14 10:01:00 UTC"), # -> impediment
+            :updated_at => DateTime.parse("2012-01-17 09:00:00 UTC"),
+            :current_state => "unstarted", #
+            :labels => "opera,filter1",
+            :accepted? => false,
+            :activities => [# Time spent on this story -->  1d 6h  = 14h
+                double(
+                    :occurred_at => DateTime.parse("2012-01-14 10:01:00 UTC"),
+                    :event_type => "story_create",
+                    :description => "James Kirk created the story",
+                    :stories => [double(:current_state => "unscheduled")]
+                ),
+                double(
+                    :occurred_at => DateTime.parse("2012-01-17 09:00:00 UTC"),
+                    :event_type => "story_update",
+                    :description => "James Kirk created the story",
+                    :stories => [double(
+                                     :current_state => "unstarted"
+                                 )]
+                )
+            ]
+        ),
 
         # ICEBOX
         double(
@@ -661,8 +691,11 @@ describe TimeChartPresenter do
     @iterations[1].stories << @sample_stories[6]
     @iterations[1].stories << @sample_stories[7]
     @iterations[1].stories << @sample_stories[8]
-    @iterations[2].stories << @sample_stories[9]
-    @iterations[2].stories << @sample_stories[10]
+    @iterations[1].stories << @sample_stories[9]
+    @iterations[1].stories << @sample_stories[10]
+    @iterations[1].stories << @sample_stories[11]
+    @iterations[2].stories << @sample_stories[12]
+    @iterations[2].stories << @sample_stories[13]
 
     Time.stub!(:now).and_return(Time.utc(2012, 01, 17, 10, 00, 00))
   end
@@ -753,7 +786,7 @@ describe TimeChartPresenter do
                                                DateTime.parse("2012-01-20 00:01:00 UTC"))
       active_stories = chart_presenter.active_stories
 
-      active_stories.length.should == 6
+      active_stories.length.should == 7
     end
 
     it "should exclude the stories which are accepted before the given date range" do
@@ -763,7 +796,7 @@ describe TimeChartPresenter do
                                                DateTime.parse("2012-01-13 00:01:00 UTC"))
       active_stories = chart_presenter.active_stories
 
-      active_stories.length.should == 6
+      active_stories.length.should == 8
     end
 
     #it "should return all stories in the current sprint if the date is not specified" do
@@ -776,14 +809,15 @@ describe TimeChartPresenter do
 
   end
 
-  context "feature/bug/chore charts" do
-    let(:chart) { @chart_presenter.send(chart_method) }
+  context "time charts" do
+    let(:chart) { @chart_presenter.send(chart_method, params.blank? ? {}: params) }
 
     before do
       @chart_presenter = TimeChartPresenter.new(@iterations, @sample_stories, Date.parse("2012-01-10"), Date.parse("2012-01-20"))
     end
 
     describe "#story_types_time_chart" do
+      let(:params){{}}
       let(:chart_method) { "story_types_time_chart" }
 
       it_should_behave_like "a chart generation method"
@@ -798,63 +832,9 @@ describe TimeChartPresenter do
       end
     end
 
-    describe "#impediments_time_chart" do
-      let(:chart_method) { "impediments_time_chart" }
-
-      it_should_behave_like "a chart generation method"
-
-      it "produces a chart" do
-        rows = chart.data_table.rows
-
-        row_values(rows, 0).should == ["Unplanned", 20] # 4 + 2 + 14
-        row_values(rows, 1).should == ["Planned", 55]     # 4 + 7 + 8 + 16 + 8 + 12
-
-      end
-    end
-
-    describe "#unplanned_stories_table" do
-      let(:chart_method) { "unplanned_stories_table" }
-
-      it_should_behave_like "a chart generation method"
-
-      it "produces a chart" do
-        rows = chart.data_table.rows
-
-        rows.length.should ==  3
-
-        row_values(rows, 0).should == ["<a href='https://www.pivotaltracker.com/story/show/7'>story7</a>", "accepted", "2012-01-11", 4]
-        row_values(rows, 1).should == ["<a href='https://www.pivotaltracker.com/story/show/8'>story8</a>", "started", "2012-01-16", 2]
-        row_values(rows, 2).should == ["<a href='https://www.pivotaltracker.com/story/show/9'>story9</a>", "finished", "2012-01-14", 14]
-
-      end
-    end
-
-    describe "#estimation_time_chart" do
-      let(:chart_method) { "estimation_time_chart" }
-
-      it_should_behave_like "a chart generation method"
-
-      it "produces a chart" do
-        rows = chart.data_table.rows
-
-        rows.length.should ==  2
-        row_values(rows, 0).should == ["<a href='https://www.pivotaltracker.com/story/show/2'>story2</a>","backend,ios",  8, 7, -13]
-        row_values(rows, 1).should == ["<a href='https://www.pivotaltracker.com/story/show/7'>story7</a>","",  20, 4, -80]
-
-      end
-    end
-
-  end
-
-  context "tkab charts" do
-    let(:chart) { @chart_presenter.send(chart_method) }
-
-    before do
-      @chart_presenter = TimeChartPresenter.new(@iterations, @sample_stories, Date.parse("2012-01-10"), Date.parse("2012-01-20"))
-    end
-
-    describe "#tkab_story_types_time_chart" do
-      let(:chart_method) { "tkab_story_types_time_chart" }
+    describe "#story_types_time_chart_filters" do
+      let(:params){{filters:["filter1"]}}
+      let(:chart_method) { "story_types_time_chart" }
 
       it_should_behave_like "a chart generation method"
 
@@ -868,7 +848,90 @@ describe TimeChartPresenter do
       end
     end
 
+
+
+    describe "#features_time_chart" do
+      let(:params){{features:["feature1", "feature2", "feature3"]}}
+      let(:chart_method) { "features_time_chart" }
+
+      it_should_behave_like "a chart generation method"
+
+      it "produces a chart" do
+        rows = chart.data_table.rows
+
+        row_values(rows, 0).should == ["feature1", 15]  # 7 + 8
+        row_values(rows, 1).should == ["feature2", 4]  # 4
+        row_values(rows, 2).should == ["feature3", 28]  # 16 + 8 + 4
+
+      end
+    end
+
+    describe "#story_details_table" do
+      let(:params){{filters:["filter1"]}}
+      let(:chart_method) { "story_details_table" }
+
+      it_should_behave_like "a chart generation method"
+
+      it "produces a chart" do
+        rows = chart.data_table.rows
+
+        rows.length.should ==  4
+        row_values(rows, 0).should == ["2012-01-13","<a href='https://www.pivotaltracker.com/story/show/2'>story2</a>", "accepted", "", "backend,ios", 8, 7, -13]
+        row_values(rows, 1).should == ["","<a href='https://www.pivotaltracker.com/story/show/5'>story5</a>", "finished", "", "backend", 0, 16, 0]
+        row_values(rows, 2).should == ["","<a href='https://www.pivotaltracker.com/story/show/9'>story9</a>", "paused", "", "", 0, 14, 0]
+        row_values(rows, 3).should == ["","Total", "", "", "", 8, 37, -5]
+
+      end
+    end
+
+    describe "#impediments_time_chart" do
+      let(:params){{}}
+      let(:chart_method) { "impediments_time_chart" }
+
+      it_should_behave_like "a chart generation method"
+
+      it "produces a chart" do
+        rows = chart.data_table.rows
+
+        row_values(rows, 0).should == ["Unplanned", 20]   # 4 + 2 + 14
+        row_values(rows, 1).should == ["Planned", 55]     # 4 + 7 + 8 + 16 + 8 + 12
+
+      end
+    end
+
+    describe "#unplanned_stories_table" do
+      let(:params){{}}
+      let(:chart_method) { "unplanned_stories_table" }
+
+      it_should_behave_like "a chart generation method"
+
+      it "produces a chart" do
+        rows = chart.data_table.rows
+
+        rows.length.should ==  3
+
+        row_values(rows, 0).should == ["<a href='https://www.pivotaltracker.com/story/show/7'>story7</a>", "accepted", "2012-01-11", 4]
+        row_values(rows, 1).should == ["<a href='https://www.pivotaltracker.com/story/show/8'>story8</a>", "started", "2012-01-16", 2]
+        row_values(rows, 2).should == ["<a href='https://www.pivotaltracker.com/story/show/9'>story9</a>", "paused", "2012-01-14", 14]
+
+      end
+    end
+
+    describe "#estimation_time_chart" do
+      let(:params){{}}
+      let(:chart_method) { "estimation_time_chart" }
+
+      it_should_behave_like "a chart generation method"
+
+      it "produces a chart" do
+        rows = chart.data_table.rows
+
+        rows.length.should ==  2
+        row_values(rows, 0).should == ["<a href='https://www.pivotaltracker.com/story/show/2'>story2</a>","backend,ios",  8, 7, -13]
+        row_values(rows, 1).should == ["<a href='https://www.pivotaltracker.com/story/show/7'>story7</a>","ios",  20, 4, -80]
+
+      end
+    end
+
   end
-
-
 end

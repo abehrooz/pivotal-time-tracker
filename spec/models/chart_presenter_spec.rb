@@ -167,28 +167,6 @@ describe ChartPresenter do
       #end
     end
 
-    describe "#accepted_story_types_chart" do
-      let(:chart_method) {"accepted_story_types_chart"}
-
-      it_should_behave_like "a chart generation method"
-
-      it "produces a chart" do
-        rows = chart.data_table.rows
-
-       def count_accepted_stories(type)
-          result = 0
-          @sample_stories.each do |story|
-            result += 1 if story.accepted? and story.story_type == type
-          end
-          result
-        end
-
-        row_values(rows, 0).should == ["Features", count_accepted_stories(Story::FEATURE)]
-        row_values(rows, 1).should == ["Bugs", count_accepted_stories(Story::BUG)]
-        row_values(rows, 2).should == ["Chores", count_accepted_stories(Story::CHORE)]
-      end
-    end
-
     describe "charts that can be filtered" do
 
       let(:story_filter) {Story::ALL_STORY_TYPES}
