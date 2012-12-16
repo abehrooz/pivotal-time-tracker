@@ -11,8 +11,14 @@
         = label_tag 'Date Range'
         = text_field_tag :start_date, params[:start_date], :placeholder => "Start YYYY/MM/DD"
         = text_field_tag :end_date, params[:end_date], :placeholder => "End YYYY/MM/DD"
+  %div
+  %h3 Display Options
   %table
     %tr
+      %td
+        %legend Select story types
+        - Story::ALL_STORY_TYPES.each do |story_type|
+          %label #{story_type.pluralize.titleize} #{check_box_tag story_type, '1', params[story_type], class: 'story_type_filter_cbx'}
       %td
         %legend Filter labels
         - @filter_tokens = []
@@ -25,6 +31,12 @@
         - (params[:features].blank? ? "" : params[:features]).split(',').each do |label|
           - @feature_tokens << {:name => label, :id=>label}
         = text_field_tag :features,params[:features], "data-pre" => @feature_tokens.to_json
+      %td
+        %legend Development track labels
+        - @track_tokens = []
+        - (params[:tracks].blank? ? "" : params[:tracks]).split(',').each do |label|
+          - @track_tokens << {:name => label, :id=>label}
+        = text_field_tag :tracks,params[:tracks], "data-pre" => @track_tokens.to_json
 
   %fieldset.buttons
     = form.submit "Refresh Charts", :class => "btn"
@@ -52,13 +64,22 @@
           hintText: "Type in a label",
           preventDuplicates: true
       });
+      $("#tracks").tokenInput("/projects/#{@project.id}.json", {
+          crossDomain: false,
+          prePopulate: $("#tracks").data("pre"),
+          theme: "facebook",
+          hintText: "Type in a label",
+          preventDuplicates: true
+      });
   });
 
 %table
-  %tr
-    - @charts.each_with_index do |chart, idx|
-      %td
-        = render :partial => 'shared/chart', locals: {chart: chart, chart_id: "chart_#{idx}"}
+  - chart_chunks = @charts.each_slice(3).to_a
+  - chart_chunks.each_with_index do |chart_chunk, chunk_index|
+    %tr
+      - chart_chunk.each_with_index do |chart, idx|
+        %td
+          = render :partial => 'shared/chart', locals: {chart: chart, chart_id: "chart_#{chunk_index * 3 + idx}"}
 
 - @tables.each_with_index do |table, idx|
   = render :partial => 'shared/table', locals: {table: table, table_id: "table_#{idx}"}
