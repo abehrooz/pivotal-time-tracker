@@ -16,10 +16,11 @@ input[type=text], input[type=password], input[type=submit] {
   border-radius: 5px;
   -moz-border-radius: 5px;
 }
-
 .buttons {
   input[type=submit] {
     width: auto;
+    float: right;
+    margin-right: 10px;
     font-size  : 1em;
     text-transform: uppercase;
     @include box-shadow(1px, 1px, 2px, #AAA);
