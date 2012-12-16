@@ -5,38 +5,34 @@
 -#  %div#iteration-range
 -#
 = form_for :project, url: project_path(@project.id), method: :get do |form|
-  %table
-    %tr
-      %td
-        = label_tag 'Date Range'
-        = text_field_tag :start_date, params[:start_date], :placeholder => "Start YYYY/MM/DD"
-        = text_field_tag :end_date, params[:end_date], :placeholder => "End YYYY/MM/DD"
+  %h3 Date Range
+  %div
+    = text_field_tag :start_date, params[:start_date], :placeholder => "Start YYYY/MM/DD"
+    = text_field_tag :end_date, params[:end_date], :placeholder => "End YYYY/MM/DD"
   %div
   %h3 Display Options
-  %table
-    %tr
-      %td
-        %legend Select story types
-        - Story::ALL_STORY_TYPES.each do |story_type|
-          %label #{story_type.pluralize.titleize} #{check_box_tag story_type, '1', params[story_type], class: 'story_type_filter_cbx'}
-      %td
-        %legend Filter labels
-        - @filter_tokens = []
-        - (params[:filters].blank? ? "" : params[:filters]).split(',').each do |label|
-          - @filter_tokens << {:name => label, :id=>label}
-        = text_field_tag :filters,params[:filters], "data-pre" => @filter_tokens.to_json
-      %td
-        %legend Feature labels
-        - @feature_tokens = []
-        - (params[:features].blank? ? "" : params[:features]).split(',').each do |label|
-          - @feature_tokens << {:name => label, :id=>label}
-        = text_field_tag :features,params[:features], "data-pre" => @feature_tokens.to_json
-      %td
-        %legend Development track labels
-        - @track_tokens = []
-        - (params[:tracks].blank? ? "" : params[:tracks]).split(',').each do |label|
-          - @track_tokens << {:name => label, :id=>label}
-        = text_field_tag :tracks,params[:tracks], "data-pre" => @track_tokens.to_json
+  %div.option-container
+    %h4 Select story types
+    - Story::ALL_STORY_TYPES.each do |story_type|
+      %label #{story_type.pluralize.titleize} #{check_box_tag story_type, '1', params[story_type], class: 'story_type_filter_cbx'}
+  %div.option-container
+    %h4 Filters
+    - @filter_tokens = []
+    - (params[:filters].blank? ? "" : params[:filters]).split(',').each do |label|
+      - @filter_tokens << {:name => label, :id=>label}
+    = text_field_tag :filters,params[:filters], "data-pre" => @filter_tokens.to_json
+  %div.option-container
+    %h4 Features
+    - @feature_tokens = []
+    - (params[:features].blank? ? "" : params[:features]).split(',').each do |label|
+      - @feature_tokens << {:name => label, :id=>label}
+    = text_field_tag :features,params[:features], "data-pre" => @feature_tokens.to_json
+  %div.option-container
+    %h4 Development Tracks
+    - @track_tokens = []
+    - (params[:tracks].blank? ? "" : params[:tracks]).split(',').each do |label|
+      - @track_tokens << {:name => label, :id=>label}
+    = text_field_tag :tracks,params[:tracks], "data-pre" => @track_tokens.to_json
 
   %fieldset.buttons
     = form.submit "Refresh Charts", :class => "btn"

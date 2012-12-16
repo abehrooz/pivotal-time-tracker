@@ -848,8 +848,6 @@ describe TimeChartPresenter do
       end
     end
 
-
-
     describe "#features_time_chart" do
       let(:params){{features:["feature1", "feature2", "feature3"]}}
       let(:chart_method) { "features_time_chart" }
@@ -862,6 +860,21 @@ describe TimeChartPresenter do
         row_values(rows, 0).should == ["feature1", 15]  # 7 + 8
         row_values(rows, 1).should == ["feature2", 4]  # 4
         row_values(rows, 2).should == ["feature3", 28]  # 16 + 8 + 4
+
+      end
+    end
+
+    describe "#impediments_time_chart" do
+      let(:params){{}}
+      let(:chart_method) { "impediments_time_chart" }
+
+      it_should_behave_like "a chart generation method"
+
+      it "produces a chart" do
+        rows = chart.data_table.rows
+
+        row_values(rows, 0).should == ["Unplanned", 20]   # 4 + 2 + 14
+        row_values(rows, 1).should == ["Planned", 55]     # 4 + 7 + 8 + 16 + 8 + 12
 
       end
     end
@@ -884,54 +897,41 @@ describe TimeChartPresenter do
       end
     end
 
-    describe "#impediments_time_chart" do
-      let(:params){{}}
-      let(:chart_method) { "impediments_time_chart" }
 
-      it_should_behave_like "a chart generation method"
 
-      it "produces a chart" do
-        rows = chart.data_table.rows
+    #describe "#unplanned_stories_table" do
+    #  let(:params){{}}
+    #  let(:chart_method) { "unplanned_stories_table" }
+    #
+    #  it_should_behave_like "a chart generation method"
+    #
+    #  it "produces a chart" do
+    #    rows = chart.data_table.rows
+    #
+    #    rows.length.should ==  3
+    #
+    #    row_values(rows, 0).should == ["<a href='https://www.pivotaltracker.com/story/show/7'>story7</a>", "accepted", "2012-01-11", 4]
+    #    row_values(rows, 1).should == ["<a href='https://www.pivotaltracker.com/story/show/8'>story8</a>", "started", "2012-01-16", 2]
+    #    row_values(rows, 2).should == ["<a href='https://www.pivotaltracker.com/story/show/9'>story9</a>", "paused", "2012-01-14", 14]
+    #
+    #  end
+    #end
 
-        row_values(rows, 0).should == ["Unplanned", 20]   # 4 + 2 + 14
-        row_values(rows, 1).should == ["Planned", 55]     # 4 + 7 + 8 + 16 + 8 + 12
-
-      end
-    end
-
-    describe "#unplanned_stories_table" do
-      let(:params){{}}
-      let(:chart_method) { "unplanned_stories_table" }
-
-      it_should_behave_like "a chart generation method"
-
-      it "produces a chart" do
-        rows = chart.data_table.rows
-
-        rows.length.should ==  3
-
-        row_values(rows, 0).should == ["<a href='https://www.pivotaltracker.com/story/show/7'>story7</a>", "accepted", "2012-01-11", 4]
-        row_values(rows, 1).should == ["<a href='https://www.pivotaltracker.com/story/show/8'>story8</a>", "started", "2012-01-16", 2]
-        row_values(rows, 2).should == ["<a href='https://www.pivotaltracker.com/story/show/9'>story9</a>", "paused", "2012-01-14", 14]
-
-      end
-    end
-
-    describe "#estimation_time_chart" do
-      let(:params){{}}
-      let(:chart_method) { "estimation_time_chart" }
-
-      it_should_behave_like "a chart generation method"
-
-      it "produces a chart" do
-        rows = chart.data_table.rows
-
-        rows.length.should ==  2
-        row_values(rows, 0).should == ["<a href='https://www.pivotaltracker.com/story/show/2'>story2</a>","backend,ios",  8, 7, -13]
-        row_values(rows, 1).should == ["<a href='https://www.pivotaltracker.com/story/show/7'>story7</a>","ios",  20, 4, -80]
-
-      end
-    end
+    #describe "#estimation_time_chart" do
+    #  let(:params){{}}
+    #  let(:chart_method) { "estimation_time_chart" }
+    #
+    #  it_should_behave_like "a chart generation method"
+    #
+    #  it "produces a chart" do
+    #    rows = chart.data_table.rows
+    #
+    #    rows.length.should ==  2
+    #    row_values(rows, 0).should == ["<a href='https://www.pivotaltracker.com/story/show/2'>story2</a>","backend,ios",  8, 7, -13]
+    #    row_values(rows, 1).should == ["<a href='https://www.pivotaltracker.com/story/show/7'>story7</a>","ios",  20, 4, -80]
+    #
+    #  end
+    #end
 
   end
 end

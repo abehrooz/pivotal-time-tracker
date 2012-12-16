@@ -2,9 +2,10 @@
 # See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
 
 en:
-  story_types_time_chart_desc: "Shows the percentage of time spent on different story types."
-  features_time_chart_desc: "Shows the percentage of time spent on different features."
-  users_time_chart_desc: "Shows the percentage of time spent by different team members."
+  story_types_time_chart_desc: "Shows the percentage of time(H) spent on different story types."
+  features_time_chart_desc: "Shows the percentage of time(H) spent on different features."
+  development_track_time_chart_desc: "Shows the percentage of time(H) spent on different development tracks."
+  users_time_chart_desc: "Shows the percentage of time(H) spent by different team members."
   impediments_time_chart_desc: "Shows the percentage of time spent on planned and unplanned stories."
   estimation_time_chart_desc: "Shows the estimated/real time spend on stories."
   accepted_story_types_chart_desc: "Shows breakdown of story types in the project."

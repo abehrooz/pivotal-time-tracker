@@ -14,8 +14,10 @@ class ProjectsController < ApplicationController
 
     @charts = []
     @charts << time_chart_presenter.story_types_time_chart({:filters => @filters})
-    @charts << time_chart_presenter.features_time_chart({:filters => @filters, :features => @features})
+    @charts << time_chart_presenter.impediments_time_chart({:filters => @filters})
     @charts << time_chart_presenter.developers_time_chart({:filters => @filters})
+    @charts << time_chart_presenter.features_time_chart({:filters => @filters, :features => @features})
+    @charts << time_chart_presenter.development_track_time_chart({:tracks => @tracks})
 
     @tables = []
 
@@ -57,6 +59,7 @@ class ProjectsController < ApplicationController
 
     @filters = params[:filters].blank? ? []: params[:filters].split(',').map(&:strip)
     @features = params[:features].blank? ? []: params[:features].split(',').map(&:strip)
+    @tracks = params[:tracks].blank? ? []: params[:tracks].split(',').map(&:strip)
 
     @story_filter = TimeChartPresenter::DEFAULT_STORY_TYPES
     @story_filter.each do |type|

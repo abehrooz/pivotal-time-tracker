@@ -138,6 +138,30 @@ class TimeChartPresenter
     )
   end
 
+
+  def development_track_time_chart(options = {})
+    defaults = {:title => "Development Track Time Chart", :types => DEFAULT_STORY_TYPES, :filters => DEFAULT_FILTER_LABELS, :tracks => DEFAULT_DEVELOPMENT_TRACK_LABELS}
+    options = defaults.merge(options)
+    data_table = GoogleVisualr::DataTable.new
+    data_table.new_column('string', 'Development Track')
+    data_table.new_column('number', 'Time')
+
+    options[:tracks].each do |label|
+      data_table.add_row([label, time_spent_on_stories(filter_stories(@story_times, options[:types], [], options[:filters] + [label] ))])
+    end
+
+    opts = {
+        :width => DEF_CHART_WIDTH,
+        :height => DEF_CHART_HEIGHT,
+        :title => options[:title]}
+
+    TimeChartWrapper.new(
+        GoogleVisualr::Interactive::PieChart.new(data_table, opts),
+        I18n.t(:development_track_time_chart_desc),
+        options[:title]
+    )
+  end
+
   def developers_time_chart(options={})
     defaults = {:title => "Developers Time Chart", :types => DEFAULT_STORY_TYPES, :filters => DEFAULT_FILTER_LABELS}
     options = defaults.merge(options)
@@ -167,6 +191,34 @@ class TimeChartPresenter
         I18n.t(:features_time_chart_desc),
         options[:title]
     )
+  end
+
+  def impediments_time_chart(options={})
+    defaults = {:title => "Planned/Unplanned Stories Time Chart", :types => DEFAULT_STORY_TYPES, :filters => DEFAULT_FILTER_LABELS}
+    options = defaults.merge(options)
+    colors = []
+    data_table = GoogleVisualr::DataTable.new
+    data_table.new_column('string', 'Story Type')
+    data_table.new_column('number', 'Time')
+
+    colors << '#B22222'
+    data_table.add_row(["Unplanned".capitalize, time_spent_on_stories(filter_stories(@story_times, options[:types], [], options[:filters], "", false, true))])
+
+    colors << '#33CD33'
+    data_table.add_row(["Planned".capitalize, time_spent_on_stories(filter_stories(@story_times, options[:types], [], options[:filters], "", true, false))])
+
+    opts = {
+        :width => DEF_CHART_WIDTH,
+        :height => DEF_CHART_HEIGHT,
+        :title => options[:title],
+        :colors => colors}
+
+    TimeChartWrapper.new(
+        GoogleVisualr::Interactive::PieChart.new(data_table, opts),
+        I18n.t(:impediments_time_chart_desc),
+        options[:title]
+    )
+
   end
 
 
@@ -236,117 +288,38 @@ class TimeChartPresenter
 
 
 
-  def impediments_time_chart(title= "Planned Stories Time Chart")
-    colors = []
-    data_table = GoogleVisualr::DataTable.new
-    data_table.new_column('string', 'Story Type')
-    data_table.new_column('number', 'Time')
-
-    colors << '#B22222'
-    data_table.add_row(["Unplanned".capitalize, time_spent_on_stories(impediments)])
-
-    colors << '#33CD33'
-    data_table.add_row(["Planned".capitalize, time_spent_on_stories(planned_stories)])
-
-    opts = {
-        :width => DEF_CHART_WIDTH,
-        :height => DEF_CHART_HEIGHT,
-        :title => title,
-        :colors => colors}
-
-    TimeChartWrapper.new(
-        GoogleVisualr::Interactive::PieChart.new(data_table, opts),
-        I18n.t(:impediments_time_chart_desc),
-        title
-    )
-
-  end
-
-  def unplanned_stories_table(title= "Unplanned Stories")
-    data_table = GoogleVisualr::DataTable.new
-    data_table.new_column('string', 'Story Name')
-    data_table.new_column('string', 'Current state')
-    data_table.new_column('string', 'Created at')
-    data_table.new_column('number', 'Time(H)')
-
-
-    impediments.each do |story, time|
-      next if story.current_state == "unstarted" && time == 0
-      storyLink = "<a href='https://www.pivotaltracker.com/story/show/#{story.id}'>#{story.name}</a>"
-      data_table.add_row([{:v => storyLink, :p => {:style => 'text-align: left;'}},
-                          story.current_state == "unstarted" ? "paused" : story.current_state,
-                          story.created_at.to_date.to_s,
-                          time])
-    end
-    opts = {
-        :allowHtml => true,
-        :showRowNumber => true,
-        :cssClassNames => {tableRow: 'StyleRows',
-                           hoverTableRow: 'StyleRowHover',
-                           oddTableRow: 'StyleAlternativeRows',
-                           selectedTableRow: 'StyleSelectedRow',
-                           tableCell: 'StyleTableCell'}}
-
-    TimeChartWrapper.new(
-        GoogleVisualr::Interactive::Table.new(data_table, opts),
-        "Shows the distribution of time spent on unplanned stories",
-        title
-    )
-
-  end
-
-  def estimation_time_chart(title= "Estimation Accuracy")
-    colors = []
-    data_table = GoogleVisualr::DataTable.new
-    data_table.new_column('string', 'Story Name')
-    data_table.new_column('string', 'Labels')
-    data_table.new_column('number', 'Estimated Time(H)')
-    data_table.new_column('number', 'Real Time(H)')
-    data_table.new_column('number', 'Change(%)')
-
-    formatter = GoogleVisualr::BarFormat.new( { :width => 150 } )
-    formatter.columns(4)
-
-    data_table.format(formatter)
-
-    colors << '#B22222'
-    colors << '#33CD33'
-    filter_stories(@story_times, [Story::FEATURE], ["accepted"]).each do |story, time|
-      next unless story.respond_to?('estimate')
-      next if story.estimate == 0
-      puts "Calculating accurcacy of story: #{story.id}"
-      storyLink = "<a href='https://www.pivotaltracker.com/story/show/#{story.id}'>#{story.name.delete("\n")}</a>"
-      accuracy = (100 - ((time.to_f / (story.estimate * 4).to_f) * 100).to_int) * -1
-      labels_s = generate_labels_string(story)
-      puts "Story: #{story.id}, change:#{accuracy}";
-      data_table.add_row([{:v => storyLink, :p => {:style => 'text-align: left;'}},
-                          labels_s,
-                          story.estimate * 4,
-                          time,
-                          accuracy])
-    end
-    puts "finished calculating the estimation change."
-
-    opts = {
-        :colors => colors,
-        :allowHtml => true,
-        :showRowNumber => true,
-        :cssClassNames => {tableRow: 'StyleRows',
-                           hoverTableRow: 'StyleRowHover',
-                           oddTableRow: 'StyleAlternativeRows',
-                           selectedTableRow: 'StyleSelectedRow',
-                           tableCell: 'StyleTableCell'}}
-
-    TimeChartWrapper.new(
-        GoogleVisualr::Interactive::Table.new(data_table, opts),
-        "Shows the real time spent on stories compared to estimations.",
-        title
-    )
-
-  end
-
-
-
+  #def unplanned_stories_table(title= "Unplanned Stories")
+  #  data_table = GoogleVisualr::DataTable.new
+  #  data_table.new_column('string', 'Story Name')
+  #  data_table.new_column('string', 'Current state')
+  #  data_table.new_column('string', 'Created at')
+  #  data_table.new_column('number', 'Time(H)')
+  #
+  #
+  #  filter_stories(@story_times, options[:types], [], options[:filters], "", false, true).each do |story, time|
+  #    next if story.current_state == "unstarted" && time == 0
+  #    storyLink = "<a href='https://www.pivotaltracker.com/story/show/#{story.id}'>#{story.name}</a>"
+  #    data_table.add_row([{:v => storyLink, :p => {:style => 'text-align: left;'}},
+  #                        story.current_state == "unstarted" ? "paused" : story.current_state,
+  #                        story.created_at.to_date.to_s,
+  #                        time])
+  #  end
+  #  opts = {
+  #      :allowHtml => true,
+  #      :showRowNumber => true,
+  #      :cssClassNames => {tableRow: 'StyleRows',
+  #                         hoverTableRow: 'StyleRowHover',
+  #                         oddTableRow: 'StyleAlternativeRows',
+  #                         selectedTableRow: 'StyleSelectedRow',
+  #                         tableCell: 'StyleTableCell'}}
+  #
+  #  TimeChartWrapper.new(
+  #      GoogleVisualr::Interactive::Table.new(data_table, opts),
+  #      "Shows the distribution of time spent on unplanned stories",
+  #      title
+  #  )
+  #
+  #end
 
   #Private methods
 
@@ -453,12 +426,14 @@ class TimeChartPresenter
     labels_s.chomp(",")
   end
 
-  def filter_stories(stories,types = [], states = [], labels = [], owner = "")
+  def filter_stories(stories,types = [], states = [], labels = [], owner = "", planned= false, unplanned = false)
     stories.select do |story|
       next unless types.size == 0  || (story.respond_to?('story_type') ?  types.include?(story.story_type) : false)
       next unless states.size == 0 || (story.respond_to?('current_state') ?  states.include?(story.current_state) : false)
       next unless labels.size == 0 || (story.respond_to?('labels') ? (labels - story.labels.split(',')).size == 0: false)
       next unless owner.empty?     || ( story.respond_to?('owned_by') ? story.owned_by.person.initials == owner  : false)
+      next unless !planned || (story.created_at < @start_date)
+      next unless !unplanned || (story.created_at >= @start_date)
       true
     end
   end
@@ -471,17 +446,17 @@ class TimeChartPresenter
     return result;
   end
 
-  def impediments()
-    @story_times.select do |story, time|
-      story.created_at >= @start_date
-    end
-  end
-
-  def planned_stories()
-    @story_times.select do |story, time|
-      story.created_at < @start_date
-    end
-  end
+  #def impediments()
+  #  @story_times.select do |story, time|
+  #    story.created_at >= @start_date
+  #  end
+  #end
+  #
+  #def planned_stories()
+  #  @story_times.select do |story, time|
+  #    story.created_at < @start_date
+  #  end
+  #end
 
 
 end
