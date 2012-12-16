@@ -21,6 +21,21 @@ class ProjectsController < ApplicationController
 
     @tables << time_chart_presenter.story_details_table({:filters => @filters})
 
+    @labels = []
+    time_chart_presenter.active_stories.each do |story|
+      next unless story.respond_to?('labels')
+      story.labels.split(',').each do |label|
+        next unless params[:q].blank? || label.include?(params[:q])
+        label_hash = {:id => label, :name => label}
+        next if @labels.include?(label_hash)
+        @labels << label_hash
+      end
+    end
+
+    respond_to do |format|
+      format.html
+      format.json {render :json => @labels}
+    end
   end
 
   private
@@ -40,8 +55,8 @@ class ProjectsController < ApplicationController
     @start_date = params[:start_date].blank? ? (current_iteration.present? ? current_iteration.start_date : Date.yesterday): Date.parse(params[:start_date])
     @end_date = params[:end_date].blank? ? (Date.today): Date.parse(params[:end_date])
 
-    @filters = params[:filters].blank? ? []: params[:filters].split(',')
-    @features = params[:features].blank? ? []: params[:features].split(',')
+    @filters = params[:filters].blank? ? []: params[:filters].split(',').map(&:strip)
+    @features = params[:features].blank? ? []: params[:features].split(',').map(&:strip)
 
     @story_filter = TimeChartPresenter::DEFAULT_STORY_TYPES
     @story_filter.each do |type|

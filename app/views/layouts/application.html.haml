@@ -2,8 +2,8 @@
 %html
   %head
     %title Pivotal Time Tracker
-    = stylesheet_link_tag "application"
-    = javascript_include_tag "application"
+    = stylesheet_link_tag "application", "tokeninput/token-input-facebook"
+    = javascript_include_tag "application", "jquery.tokeninput"
     %link(rel="shortcut icon" href="/assets/favicon.ico")
     %script{src: 'http://www.google.com/jsapi'}
     = csrf_meta_tags

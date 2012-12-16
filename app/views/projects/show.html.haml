@@ -5,14 +5,26 @@
 -#  %div#iteration-range
 -#
 = form_for :project, url: project_path(@project.id), method: :get do |form|
-  %fieldset
-    %legend Select dates
-    = text_field_tag :start_date, params[:start_date], :placeholder => "Start YYYY/MM/DD"
-    = text_field_tag :end_date, params[:end_date], :placeholder => "End YYYY/MM/DD"
-  %fieldset
-    %legend Select story types
-    - Story::ALL_STORY_TYPES.each do |story_type|
-      %label #{story_type.pluralize.titleize} #{check_box_tag story_type, '1', params[story_type], class: 'story_type_filter_cbx'}
+  %table
+    %tr
+      %td
+        = label_tag 'Date Range'
+        = text_field_tag :start_date, params[:start_date], :placeholder => "Start YYYY/MM/DD"
+        = text_field_tag :end_date, params[:end_date], :placeholder => "End YYYY/MM/DD"
+  %table
+    %tr
+      %td
+        %legend Filter labels
+        - @filter_tokens = []
+        - (params[:filters].blank? ? "" : params[:filters]).split(',').each do |label|
+          - @filter_tokens << {:name => label, :id=>label}
+        = text_field_tag :filters,params[:filters], "data-pre" => @filter_tokens.to_json
+      %td
+        %legend Feature labels
+        - @feature_tokens = []
+        - (params[:features].blank? ? "" : params[:features]).split(',').each do |label|
+          - @feature_tokens << {:name => label, :id=>label}
+        = text_field_tag :features,params[:features], "data-pre" => @feature_tokens.to_json
 
   %fieldset.buttons
     = form.submit "Refresh Charts", :class => "btn"
@@ -24,6 +36,22 @@
     TrackerStats.add_datepicker('#start_date', "#{default_start_date}" );
     TrackerStats.add_datepicker('#end_date', "#{default_end_date}" );
     $('div.tooltip_hotspot').tooltip({relative: true}).dynamic();
+  });
+  $(function() {
+      $("#filters").tokenInput("/projects/#{@project.id}.json", {
+          crossDomain: false,
+          prePopulate: $("#filters").data("pre"),
+          theme: "facebook",
+          hintText: "Type in a label",
+          preventDuplicates: true
+      });
+      $("#features").tokenInput("/projects/#{@project.id}.json", {
+          crossDomain: false,
+          prePopulate: $("#features").data("pre"),
+          theme: "facebook",
+          hintText: "Type in a label",
+          preventDuplicates: true
+      });
   });
 
 %table
@@ -37,3 +65,4 @@
 
 -#- @tkab_charts.each_with_index do |chart, idx|
 -#  = render :partial => 'shared/chart', locals: {chart: chart, chart_id: "tkab_chart_#{idx}"}
+
