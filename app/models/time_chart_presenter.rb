@@ -251,14 +251,25 @@ class TimeChartPresenter
       total_estimate += estimate;
       total_real += time;
       date = story.respond_to?('accepted_at') ? story.accepted_at.to_date.to_s.delete("-") : ""
-      data_table.add_row([{:v => date, :p => {:width => 100}},
-                          {:v => storyLink, :p => {:style => 'text-align: left;'}},
-                          story.current_state == "unstarted" ? "paused" : story.current_state,
-                          story.respond_to?('owned_by') ? story.owned_by.person.initials : "",
-                          generate_labels_string(story, options[:tracks]),
-                          estimate,
-                          time,
-                          change.to_i])
+      if ((story.created_at < @start_date))
+        data_table.add_row([{:v => date, :p => {:width => 100}},
+                            {:v => storyLink, :p => {:style => 'text-align: left;'}},
+                            story.current_state == "unstarted" ? "paused" : story.current_state,
+                            story.respond_to?('owned_by') ? story.owned_by.person.initials : "",
+                            generate_labels_string(story, options[:tracks]),
+                            estimate,
+                            time,
+                            change.to_i])
+      else
+        data_table.add_row([{:v => date, :p => {:style => 'background-color: #F34545;'}},
+                            {:v => storyLink, :p => {:style => 'text-align: left;background-color: #F34545;'}},
+                            {:v => story.current_state == "unstarted" ? "paused" : story.current_state, :p => {:style => 'background-color: #F34545;'}},
+                            {:v => story.respond_to?('owned_by') ? story.owned_by.person.initials : "", :p => {:style => 'background-color: #F34545;'}},
+                            {:v => generate_labels_string(story, options[:tracks]), :p => {:style => 'background-color: #F34545;'}},
+                            {:v => estimate, :p => {:style => 'background-color: #F34545;'}},
+                            {:v => time, :p => {:style => 'background-color: #F34545;'}},
+                            {:v => change.to_i, :p => {:style => 'background-color: #F34545;'}}])
+      end
     end
     data_table.add_row(["",
                         {:v => "Total", :p => {:style => 'font-weight: bold; text-align: left;'}},
