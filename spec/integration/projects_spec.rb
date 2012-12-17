@@ -70,7 +70,7 @@ describe "Setting the API token" do
       it "has story type filter", true do
         page.find("input#feature")['checked'].should be_true
         page.find("input#bug")['checked'].should be_true
-        page.find("input#chore")['checked'].should be_true
+        page.find("input#chore")['checked'].should be_false
       end
 
       it "uses nice date pickers", js: true do

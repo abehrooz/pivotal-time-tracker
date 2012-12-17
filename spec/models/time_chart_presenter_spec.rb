@@ -799,14 +799,6 @@ describe TimeChartPresenter do
       active_stories.length.should == 8
     end
 
-    #it "should return all stories in the current sprint if the date is not specified" do
-    #  chart_presenter = TimeChartPresenter.new(@iterations,
-    #                                           @sample_stories )
-    #  active_stories = chart_presenter.active_stories
-    #
-    #  active_stories.length.should == 8
-    #end
-
   end
 
   context "time charts" do
@@ -817,10 +809,8 @@ describe TimeChartPresenter do
     end
 
     describe "#story_types_time_chart" do
-      let(:params){{}}
+      let(:params){{types:Story::ALL_STORY_TYPES }}
       let(:chart_method) { "story_types_time_chart" }
-
-      it_should_behave_like "a chart generation method"
 
       it "produces a chart" do
         rows = chart.data_table.rows
@@ -833,10 +823,10 @@ describe TimeChartPresenter do
     end
 
     describe "#story_types_time_chart_filters" do
-      let(:params){{filters:["filter1"]}}
+      let(:params){{types:Story::ALL_STORY_TYPES ,filters:["filter1"]}}
       let(:chart_method) { "story_types_time_chart" }
 
-      it_should_behave_like "a chart generation method"
+      #it_should_behave_like "a chart generation method"
 
       it "produces a chart" do
         rows = chart.data_table.rows
@@ -849,10 +839,8 @@ describe TimeChartPresenter do
     end
 
     describe "#features_time_chart" do
-      let(:params){{features:["feature1", "feature2", "feature3"]}}
+      let(:params){{types:Story::ALL_STORY_TYPES ,features:["feature1", "feature2", "feature3"]}}
       let(:chart_method) { "features_time_chart" }
-
-      it_should_behave_like "a chart generation method"
 
       it "produces a chart" do
         rows = chart.data_table.rows
@@ -865,10 +853,8 @@ describe TimeChartPresenter do
     end
 
     describe "#impediments_time_chart" do
-      let(:params){{}}
+      let(:params){{types:Story::ALL_STORY_TYPES}}
       let(:chart_method) { "impediments_time_chart" }
-
-      it_should_behave_like "a chart generation method"
 
       it "produces a chart" do
         rows = chart.data_table.rows
@@ -880,19 +866,17 @@ describe TimeChartPresenter do
     end
 
     describe "#story_details_table" do
-      let(:params){{filters:["filter1"]}}
+      let(:params){{types:Story::ALL_STORY_TYPES ,filters:["filter1"]}}
       let(:chart_method) { "story_details_table" }
-
-      it_should_behave_like "a chart generation method"
 
       it "produces a chart" do
         rows = chart.data_table.rows
 
         rows.length.should ==  4
-        row_values(rows, 0).should == ["20120113","<a href='https://www.pivotaltracker.com/story/show/2'>story2</a>", "accepted", "", "backend,ios", 8, 7, -13]
-        row_values(rows, 1).should == ["","<a href='https://www.pivotaltracker.com/story/show/5'>story5</a>", "finished", "", "backend", 0, 16, 0]
-        row_values(rows, 2).should == ["","<a href='https://www.pivotaltracker.com/story/show/9'>story9</a>", "paused", "", "", 0, 14, 0]
-        row_values(rows, 3).should == ["","Total", "", "", "", 8, 37, -5]
+        row_values(rows, 0).should == ["20120113","<a href='https://www.pivotaltracker.com/story/show/2'>story2</a>", "accepted", "", "backend,ios", true, 8, 7, -13]
+        row_values(rows, 1).should == ["","<a href='https://www.pivotaltracker.com/story/show/5'>story5</a>", "finished", "", "backend",true, 0, 16, 0]
+        row_values(rows, 2).should == ["","<a href='https://www.pivotaltracker.com/story/show/9'>story9</a>", "paused", "", "",false, 0, 14, 0]
+        row_values(rows, 3).should == ["","Total", "", "", "",true, 8, 37, -5]
 
       end
     end

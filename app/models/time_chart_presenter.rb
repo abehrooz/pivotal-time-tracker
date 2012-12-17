@@ -22,8 +22,7 @@ class TimeChartPresenter
 
   DEFAULT_STORY_TYPES = [
       Story::FEATURE,
-      Story::BUG,
-      Story::CHORE
+      Story::BUG
   ]
 
   DEFAULT_DEVELOPMENT_TRACK_LABELS = [
@@ -230,12 +229,13 @@ class TimeChartPresenter
     data_table.new_column('string', 'State')
     data_table.new_column('string', 'Developer')
     data_table.new_column('string', 'Track')
+    data_table.new_column('boolean', 'Planned')
     data_table.new_column('number', 'Estimate(H)')
     data_table.new_column('number', 'Time(H)')
     data_table.new_column('number', 'Change(%)')
 
     formatter = GoogleVisualr::BarFormat.new( { :width => 150 } )
-    formatter.columns(7)
+    formatter.columns(8)
 
     data_table.format(formatter)
 
@@ -251,31 +251,22 @@ class TimeChartPresenter
       total_estimate += estimate;
       total_real += time;
       date = story.respond_to?('accepted_at') ? story.accepted_at.to_date.to_s.delete("-") : ""
-      if ((story.created_at < @start_date))
-        data_table.add_row([{:v => date, :p => {:width => 100}},
-                            {:v => storyLink, :p => {:style => 'text-align: left;'}},
-                            story.current_state == "unstarted" ? "paused" : story.current_state,
-                            story.respond_to?('owned_by') ? story.owned_by.person.initials : "",
-                            generate_labels_string(story, options[:tracks]),
-                            estimate,
-                            time,
-                            change.to_i])
-      else
-        data_table.add_row([{:v => date, :p => {:style => 'background-color: #F34545;'}},
-                            {:v => storyLink, :p => {:style => 'text-align: left;background-color: #F34545;'}},
-                            {:v => story.current_state == "unstarted" ? "paused" : story.current_state, :p => {:style => 'background-color: #F34545;'}},
-                            {:v => story.respond_to?('owned_by') ? story.owned_by.person.initials : "", :p => {:style => 'background-color: #F34545;'}},
-                            {:v => generate_labels_string(story, options[:tracks]), :p => {:style => 'background-color: #F34545;'}},
-                            {:v => estimate, :p => {:style => 'background-color: #F34545;'}},
-                            {:v => time, :p => {:style => 'background-color: #F34545;'}},
-                            {:v => change.to_i, :p => {:style => 'background-color: #F34545;'}}])
-      end
+      data_table.add_row([{:v => date, :p => {:width => 100}},
+                          {:v => storyLink, :p => {:style => 'text-align: left;'}},
+                          story.current_state == "unstarted" ? "paused" : story.current_state,
+                          story.respond_to?('owned_by') ? story.owned_by.person.initials : "",
+                          generate_labels_string(story, options[:tracks]),
+                          story.created_at <= @start_date,
+                          estimate,
+                          time,
+                          change.to_i])
     end
     data_table.add_row(["",
                         {:v => "Total", :p => {:style => 'font-weight: bold; text-align: left;'}},
                         "",
                         "",
                         "",
+                        true,
                         total_estimate,
                         total_real,
                         changes.length == 0 ? 0 : (changes.inject(:+).to_f/changes.length.to_f).floor])
@@ -397,8 +388,8 @@ class TimeChartPresenter
       next unless states.size == 0 || (story.respond_to?('current_state') ?  states.include?(story.current_state) : false)
       next unless labels.size == 0 || (story.respond_to?('labels') ? (labels - story.labels.split(',')).size == 0: false)
       next unless owner.empty?     || ( story.respond_to?('owned_by') ? story.owned_by.person.initials == owner  : false)
-      next unless !planned || (story.created_at < @start_date)
-      next unless !unplanned || (story.created_at >= @start_date)
+      next unless !planned || (story.created_at <= @start_date)
+      next unless !unplanned || (story.created_at > @start_date)
       true
     end
   end
