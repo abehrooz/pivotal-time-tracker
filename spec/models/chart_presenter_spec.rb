@@ -169,7 +169,7 @@ describe ChartPresenter do
 
     describe "charts that can be filtered" do
 
-      let(:story_filter) {Story::ALL_STORY_TYPES}
+      let(:story_types) {Story::ALL_STORY_TYPES}
       let(:chart) {@chart_presenter.send(chart_method, story_filter)}
 
       describe "#discovery_and_acceptance_chart" do
@@ -179,7 +179,7 @@ describe ChartPresenter do
 
         context "filtering by story type" do
 
-          let(:story_filter) {[Story::BUG] }
+          let(:story_types) {[Story::BUG] }
 
           it "accepts an array of the story types to be filtered" do
             rows = chart.data_table.rows
@@ -213,7 +213,7 @@ describe ChartPresenter do
         it_should_behave_like "a chart generation method"
 
         context "filtering by story type" do
-          let(:story_filter) {[Story::FEATURE]}
+          let(:story_types) {[Story::FEATURE]}
 
           it "accepts an array of story types to filter" do
             rows = chart.data_table.rows
@@ -241,7 +241,7 @@ describe ChartPresenter do
         it_should_behave_like "a chart generation method"
 
         context "filtering by story type" do
-          let(:story_filter) {[Story::FEATURE, Story::CHORE]}
+          let(:story_types) {[Story::FEATURE, Story::CHORE]}
 
           it "accepts an array of story types to filter" do
             rows = chart.data_table.rows

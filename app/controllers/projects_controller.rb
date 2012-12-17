@@ -13,31 +13,16 @@ class ProjectsController < ApplicationController
     time_chart_presenter = TimeChartPresenter.new( iterations, stories, @start_date, @end_date)
 
     @charts = []
-    @charts << time_chart_presenter.story_types_time_chart({:filters => @filters})
-    @charts << time_chart_presenter.impediments_time_chart({:filters => @filters})
-    @charts << time_chart_presenter.developers_time_chart({:filters => @filters})
-    @charts << time_chart_presenter.features_time_chart({:filters => @filters, :features => @features})
-    @charts << time_chart_presenter.development_track_time_chart({:tracks => @tracks})
+    @charts << time_chart_presenter.story_types_time_chart({:types => @story_types, :filters => @filters})
+    @charts << time_chart_presenter.impediments_time_chart({:types => @story_types, :filters => @filters})
+    @charts << time_chart_presenter.developers_time_chart({:types => @story_types, :filters => @filters})
+    @charts << time_chart_presenter.features_time_chart({:types => @story_types, :filters => @filters, :features => @features})
+    @charts << time_chart_presenter.development_track_time_chart({:types => @story_types, :filters => @filters, :tracks => @tracks})
 
     @tables = []
 
-    @tables << time_chart_presenter.story_details_table({:filters => @filters})
+    @tables << time_chart_presenter.story_details_table({:types => @story_types, :filters => @filters,:tracks => @tracks })
 
-    @labels = []
-    time_chart_presenter.active_stories.each do |story|
-      next unless story.respond_to?('labels')
-      story.labels.split(',').each do |label|
-        next unless params[:q].blank? || label.include?(params[:q])
-        label_hash = {:id => label, :name => label}
-        next if @labels.include?(label_hash)
-        @labels << label_hash
-      end
-    end
-
-    respond_to do |format|
-      format.html
-      format.json {render :json => @labels}
-    end
   end
 
   private
@@ -61,9 +46,15 @@ class ProjectsController < ApplicationController
     @features = params[:features].blank? ? []: params[:features].split(',').map(&:strip)
     @tracks = params[:tracks].blank? ? []: params[:tracks].split(',').map(&:strip)
 
-    @story_filter = TimeChartPresenter::DEFAULT_STORY_TYPES
-    @story_filter.each do |type|
-      params[type] = '1'
+    @story_types = []
+    Story::ALL_STORY_TYPES.each do |type|
+      if not params[type].blank?
+        @story_types << type
+      end
     end
-  end
+
+    @story_types = TimeChartPresenter::DEFAULT_STORY_TYPES if @story_types.empty?
+    @story_types.each do |type|
+      params[type] = '1'
+    end  end
 end

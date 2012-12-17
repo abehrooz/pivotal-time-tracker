@@ -32,7 +32,6 @@ class TimeChartPresenter
       "android",
       "html5",
       "frontend",
-      "rpng",
       "sysadm",
       "doc"
   ]
@@ -223,7 +222,7 @@ class TimeChartPresenter
 
 
   def story_details_table(options={})
-    defaults = {:title => "Developers Time Chart", :types => DEFAULT_STORY_TYPES, :filters => DEFAULT_FILTER_LABELS}
+    defaults = {:title => "Developers Time Chart", :types => DEFAULT_STORY_TYPES, :filters => DEFAULT_FILTER_LABELS, :tracks => DEFAULT_DEVELOPMENT_TRACK_LABELS}
     options = defaults.merge(options)
     data_table = GoogleVisualr::DataTable.new
     data_table.new_column('string', 'Date')
@@ -251,12 +250,12 @@ class TimeChartPresenter
       changes << change
       total_estimate += estimate;
       total_real += time;
-      date = story.respond_to?('accepted_at') ? story.accepted_at.to_date.to_s : ""
+      date = story.respond_to?('accepted_at') ? story.accepted_at.to_date.to_s.delete("-") : ""
       data_table.add_row([{:v => date, :p => {:width => 100}},
                           {:v => storyLink, :p => {:style => 'text-align: left;'}},
                           story.current_state == "unstarted" ? "paused" : story.current_state,
                           story.respond_to?('owned_by') ? story.owned_by.person.initials : "",
-                          generate_labels_string(story),
+                          generate_labels_string(story, options[:tracks]),
                           estimate,
                           time,
                           change.to_i])
@@ -286,41 +285,6 @@ class TimeChartPresenter
 
   end
 
-
-
-  #def unplanned_stories_table(title= "Unplanned Stories")
-  #  data_table = GoogleVisualr::DataTable.new
-  #  data_table.new_column('string', 'Story Name')
-  #  data_table.new_column('string', 'Current state')
-  #  data_table.new_column('string', 'Created at')
-  #  data_table.new_column('number', 'Time(H)')
-  #
-  #
-  #  filter_stories(@story_times, options[:types], [], options[:filters], "", false, true).each do |story, time|
-  #    next if story.current_state == "unstarted" && time == 0
-  #    storyLink = "<a href='https://www.pivotaltracker.com/story/show/#{story.id}'>#{story.name}</a>"
-  #    data_table.add_row([{:v => storyLink, :p => {:style => 'text-align: left;'}},
-  #                        story.current_state == "unstarted" ? "paused" : story.current_state,
-  #                        story.created_at.to_date.to_s,
-  #                        time])
-  #  end
-  #  opts = {
-  #      :allowHtml => true,
-  #      :showRowNumber => true,
-  #      :cssClassNames => {tableRow: 'StyleRows',
-  #                         hoverTableRow: 'StyleRowHover',
-  #                         oddTableRow: 'StyleAlternativeRows',
-  #                         selectedTableRow: 'StyleSelectedRow',
-  #                         tableCell: 'StyleTableCell'}}
-  #
-  #  TimeChartWrapper.new(
-  #      GoogleVisualr::Interactive::Table.new(data_table, opts),
-  #      "Shows the distribution of time spent on unplanned stories",
-  #      title
-  #  )
-  #
-  #end
-
   #Private methods
 
   def is_story_active(story)
@@ -342,19 +306,13 @@ class TimeChartPresenter
     progress_time = 0
     last_started_time = 0
     activities.each do |activity|
-      #puts "Activity description = #{activity.description}"
-      #puts "Activity event type  = #{activity.event_type}"
       next unless activity.event_type == "story_update"
       first = activity.stories.first
       next unless first.respond_to?('current_state')
       current_state = first.current_state
-      #puts "current state = #{current_state}"
-      #puts "activity occured = #{activity.occurred_at}"
       next if current_state == "unknown"
       unless last_started_time == 0
         occurred_at = activity.occurred_at
-        #puts "last_started_time= #{last_started_time}"
-        #puts "occurred_at= #{occurred_at}"
         if (last_started_time > @start_date && occurred_at > @start_date && last_started_time <= @end_date && occurred_at <= @end_date)
           progress_time += time_diff_in_hours(last_started_time, occurred_at)
         end
@@ -366,24 +324,20 @@ class TimeChartPresenter
         end
 
         last_started_time = 0
-        #puts "progress time = #{progress_time}"
       end
       if (current_state == "started")
         last_started_time = activity.occurred_at
       end
     end
     if (last_started_time != 0)
-      # story is started, but not finished. The time in progress is from started time until now
       progress_time += time_diff_in_hours(last_started_time, Time.now)
     end
-    #puts "progress time = #{progress_time}"
     return progress_time
   end
 
   def time_diff_in_hours(from_time, to_time)
 
     time_difference = Time.diff(to_time, from_time)
-    #puts "time difference = #{time_difference}"
     raw_time_diff = (time_difference[:week] * 5 * 8) + (time_difference[:day] * 8) + (time_difference[:hour]> 8 ? (time_difference[:hour] % 16) : time_difference[:hour])
     if (time_difference[:day] >=2)
       to_time_wday = to_time.strftime('%a')
@@ -415,11 +369,11 @@ class TimeChartPresenter
     return raw_time_diff
   end
 
-  def generate_labels_string(story)
+  def generate_labels_string(story, tracks )
     labels = story.respond_to?('labels') ? story.labels : ""
     labels_s = ""
     labels.split(',').each do |label|
-      if (DEFAULT_DEVELOPMENT_TRACK_LABELS.include?(label))
+      if (tracks.include?(label))
         labels_s += label + ","
       end
     end
@@ -445,18 +399,5 @@ class TimeChartPresenter
     end
     return result;
   end
-
-  #def impediments()
-  #  @story_times.select do |story, time|
-  #    story.created_at >= @start_date
-  #  end
-  #end
-  #
-  #def planned_stories()
-  #  @story_times.select do |story, time|
-  #    story.created_at < @start_date
-  #  end
-  #end
-
 
 end

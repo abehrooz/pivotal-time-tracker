@@ -8,7 +8,9 @@ Tracker::Application.routes.draw do
     delete 'logout' => :destroy
   end
 
-  resources :projects, :only => [:index, :show]
+  resources :projects, :only => [:index, :show] do
+    resources :labels
+  end
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

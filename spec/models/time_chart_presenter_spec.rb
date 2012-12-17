@@ -889,49 +889,13 @@ describe TimeChartPresenter do
         rows = chart.data_table.rows
 
         rows.length.should ==  4
-        row_values(rows, 0).should == ["2012-01-13","<a href='https://www.pivotaltracker.com/story/show/2'>story2</a>", "accepted", "", "backend,ios", 8, 7, -13]
+        row_values(rows, 0).should == ["20120113","<a href='https://www.pivotaltracker.com/story/show/2'>story2</a>", "accepted", "", "backend,ios", 8, 7, -13]
         row_values(rows, 1).should == ["","<a href='https://www.pivotaltracker.com/story/show/5'>story5</a>", "finished", "", "backend", 0, 16, 0]
         row_values(rows, 2).should == ["","<a href='https://www.pivotaltracker.com/story/show/9'>story9</a>", "paused", "", "", 0, 14, 0]
         row_values(rows, 3).should == ["","Total", "", "", "", 8, 37, -5]
 
       end
     end
-
-
-
-    #describe "#unplanned_stories_table" do
-    #  let(:params){{}}
-    #  let(:chart_method) { "unplanned_stories_table" }
-    #
-    #  it_should_behave_like "a chart generation method"
-    #
-    #  it "produces a chart" do
-    #    rows = chart.data_table.rows
-    #
-    #    rows.length.should ==  3
-    #
-    #    row_values(rows, 0).should == ["<a href='https://www.pivotaltracker.com/story/show/7'>story7</a>", "accepted", "2012-01-11", 4]
-    #    row_values(rows, 1).should == ["<a href='https://www.pivotaltracker.com/story/show/8'>story8</a>", "started", "2012-01-16", 2]
-    #    row_values(rows, 2).should == ["<a href='https://www.pivotaltracker.com/story/show/9'>story9</a>", "paused", "2012-01-14", 14]
-    #
-    #  end
-    #end
-
-    #describe "#estimation_time_chart" do
-    #  let(:params){{}}
-    #  let(:chart_method) { "estimation_time_chart" }
-    #
-    #  it_should_behave_like "a chart generation method"
-    #
-    #  it "produces a chart" do
-    #    rows = chart.data_table.rows
-    #
-    #    rows.length.should ==  2
-    #    row_values(rows, 0).should == ["<a href='https://www.pivotaltracker.com/story/show/2'>story2</a>","backend,ios",  8, 7, -13]
-    #    row_values(rows, 1).should == ["<a href='https://www.pivotaltracker.com/story/show/7'>story7</a>","ios",  20, 4, -80]
-    #
-    #  end
-    #end
 
   end
 end

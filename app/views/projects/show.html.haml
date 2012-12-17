@@ -46,21 +46,21 @@
     $('div.tooltip_hotspot').tooltip({relative: true}).dynamic();
   });
   $(function() {
-      $("#filters").tokenInput("/projects/#{@project.id}.json", {
+      $("#filters").tokenInput("/projects/#{@project.id}/labels.json", {
           crossDomain: false,
           prePopulate: $("#filters").data("pre"),
           theme: "facebook",
           hintText: "Type in a label",
           preventDuplicates: true
       });
-      $("#features").tokenInput("/projects/#{@project.id}.json", {
+      $("#features").tokenInput("/projects/#{@project.id}/labels.json", {
           crossDomain: false,
           prePopulate: $("#features").data("pre"),
           theme: "facebook",
           hintText: "Type in a label",
           preventDuplicates: true
       });
-      $("#tracks").tokenInput("/projects/#{@project.id}.json", {
+      $("#tracks").tokenInput("/projects/#{@project.id}/labels.json", {
           crossDomain: false,
           prePopulate: $("#tracks").data("pre"),
           theme: "facebook",
