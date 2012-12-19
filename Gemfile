@@ -9,7 +9,8 @@ gem 'time_diff'       , '>= 0.2.2'
 
 gem 'google_visualr'  , '>= 2.1.0'
 gem 'nokogiri'        , '>= 1.3.3'
-
+gem 'watir'           , '>=4.0.2'
+gem 'whenever'        , '>= 0.8.0'
 
 # Gems used only for assets and not required
 # in production environments by default.
