@@ -9,23 +9,23 @@ describe SessionsController do
 
     let(:api_token) { "12345678xxx" }
 
-    context "via username and password" do
-      let(:username) { "winston" }
-      let(:password) { "jollygoodfellow" }
-      let(:params)   { { username: username, password: password } }
-
-      it "sessionizes API Token" do
-        stub_request(:post, 'https://www.pivotaltracker.com/services/v4/tokens/active')
-            .with(body: { username: username, password: password })
-            .to_return(body: "<guid>#{api_token}</guid>")
-
-        do_request
-
-        session[TrackerApi::API_TOKEN_KEY].should be_an_instance_of(TrackerApi)
-        session[TrackerApi::API_TOKEN_KEY].api_token.should == api_token
-        response.should redirect_to projects_path
-      end
-    end
+    #context "via username and password" do
+    #  let(:username) { "winston" }
+    #  let(:password) { "jollygoodfellow" }
+    #  let(:params)   { { username: username, password: password } }
+    #
+    #  it "sessionizes API Token" do
+    #    stub_request(:post, 'https://www.pivotaltracker.com/services/v4/tokens/active')
+    #        .with(body: { username: username, password: password })
+    #        .to_return(body: "<guid>#{api_token}</guid>")
+    #
+    #    do_request
+    #
+    #    session[TrackerApi::API_TOKEN_KEY].should be_an_instance_of(TrackerApi)
+    #    session[TrackerApi::API_TOKEN_KEY].api_token.should == api_token
+    #    response.should redirect_to projects_path
+    #  end
+    #end
 
     context "via api token" do
       let(:params) { { api_token: api_token } }

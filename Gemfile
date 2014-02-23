@@ -4,6 +4,7 @@ gem 'rails'           , '3.2.1'
 gem 'haml'            , '>= 3.1.4'
 gem 'jquery-rails'    , '>= 1.0.19'
 gem 'jquery-ui-themes' ,'>= 0.0.4'
+gem 'jquery-ui-rails'
 gem 'rest-client'     , '>= 1.6.7'
 gem 'time_diff'       , '>= 0.2.2'
 
@@ -34,7 +35,7 @@ end
 
 group :test, :development do
   gem 'rspec-rails', '>= 2.8.1'
-  gem 'evergreen', require: 'evergreen/rails'
+  #gem 'evergreen', require: 'evergreen/rails'
   #gem 'ruby-debug19'
   gem 'factory_girl_rails'
   gem 'timecop'

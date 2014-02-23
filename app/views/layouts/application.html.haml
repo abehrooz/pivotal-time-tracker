@@ -12,7 +12,7 @@
       .container
         %h1= link_to "Pivotal Time Tracker", projects_path
         - if authorized?
-          = link_to "Logout", logout_path, method: :delete, class: "logout"
+          = link_to "Log out", logout_path, method: :delete, class: "logout"
     #content
       .container
         - if flash[:notice]

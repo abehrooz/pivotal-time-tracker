@@ -10,9 +10,10 @@ class TrackerApi
       if api_token = options[:api_token].presence
         # this makes a quick API call to see if the api token is correct
         RestClient.get(API_BASE_PATH + '/activities?limit=1', self.default_headers(api_token) )
-      elsif options[:username].present? && options[:password].present?
-        response = RestClient.post(API_BASE_PATH + '/me', username: options[:username], password: options[:password])
-        api_token = Nokogiri::XML(response.body).search('guid').inner_html
+      # Basic Authentication by username and password is not properly supported in API V4
+      #elsif options[:username].present? && options[:password].present?
+      #  response = RestClient.post(API_BASE_PATH + '/me', username: options[:username], password: options[:password])
+      #  api_token = Nokogiri::XML(response.body).search('guid').inner_html
       end
 
       api_token.blank? ? nil : self.new(api_token)

@@ -6,8 +6,8 @@
 //
 //= require jquery
 //= require jquery_ujs
-//= require jquery-ui
 //= require_tree .
+//= require jquery.ui.all
 //= require jquerytools/tooltip.js
 //= require jquerytools/tooltip.slide.js
 //= require jquerytools/tooltip.dynamic.js
