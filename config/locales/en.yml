@@ -2,13 +2,13 @@
 # See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
 
 en:
-  story_types_time_chart_desc: "Shows the percentage of time(H) spent on different story types."
-  features_time_chart_desc: "Shows the percentage of time(H) spent on different features."
-  development_track_time_chart_desc: "Shows the percentage of time(H) spent on different development tracks."
-  users_time_chart_desc: "Shows the percentage of time(H) spent by different team members."
-  impediments_time_chart_desc: "Shows the percentage of time spent on planned and unplanned stories."
-  estimation_time_chart_desc: "Shows the estimated/real time spend on stories."
-  accepted_story_types_chart_desc: "Shows breakdown of story types in the project."
+  story_types_time_chart_desc: "The percentage of time(H) spent on different story types."
+  features_time_chart_desc: "The percentage of time(H) spent on different features."
+  development_track_time_chart_desc: "The percentage of time(H) spent on different development tracks."
+  users_time_chart_desc: "The percentage of time(H) spent by different team members."
+  impediments_time_chart_desc: "The percentage of time spent on planned and unplanned stories."
+  estimation_time_chart_desc: "The estimated/real time spend on stories."
+  accepted_story_types_chart_desc: "Breakdown of story types in the project."
   discovery_and_acceptance_chart_desc: "Shows how many stories discovered during an iteration were finally accepted."
   acceptance_days_by_iteration_chart_desc: "Shows number of days between when stories are discovered to when they are finally accepted."
   acceptance_by_days_chart_desc: "Shows number of stories that took a particular duration (in days) to be accepted."

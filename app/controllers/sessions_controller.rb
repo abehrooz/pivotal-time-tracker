@@ -10,7 +10,7 @@ class SessionsController < ApplicationController
       session[TrackerApi::API_TOKEN_KEY] = tracker_session
       redirect_to projects_path
     else
-      redirect_to login_path, alert: "We were not able to authenticate you lah."
+      redirect_to login_path, alert: "We were not able to authenticate you. Please make sure your API token is still valid."
     end
   end
 

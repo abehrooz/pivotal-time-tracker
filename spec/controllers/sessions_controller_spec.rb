@@ -48,7 +48,7 @@ describe SessionsController do
         do_request
 
         response.should redirect_to login_path
-        flash[:alert].should == "We were not able to authenticate you lah."
+        flash[:alert].should == "We were not able to authenticate you. Please make sure your API token is still valid."
       end
     end
   end

@@ -43,7 +43,6 @@ class TimeChartPresenter
 
   STORY_TYPE_COLORS = {
       Story::FEATURE => {default: '#3366CC', additional: '#80b3ff'},
-      #FEATURE => {default: '#000000', additional: '#80b3ff'},
       Story::BUG => {default: '#DC3912', additional: '#ff865f'},
       Story::CHORE => {default: '#FF9900', additional: '#ffe64d'},
   }
@@ -77,7 +76,7 @@ class TimeChartPresenter
       (is_story_active(story))
     end
 
-    # Calculates time spent on stories and store it in a hash
+    # Calculates time spent on stories and stores them in a hash
     result = []
     @active_stories.each do |story|
       result << story

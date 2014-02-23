@@ -1,9 +1,5 @@
 %h2 Projects - #{@project.name}
 
--#%div
--#  = render :partial => 'shared/chart', locals: {chart: @velocity_range_chart, chart_id: "velocity-range-chart"}
--#  %div#iteration-range
--#
 = form_for :project, url: project_path(@project.id), method: :get do |form|
   %h3 Date Range
   %div
@@ -35,14 +31,14 @@
     = text_field_tag :tracks,params[:tracks], "data-pre" => @track_tokens.to_json
 
   %fieldset.buttons
-    = form.submit "Refresh Charts", :class => "btn"
+    = form.submit "Refresh", :class => "btn"
 
 - default_start_date = @start_date.strftime("%Y/%m/%d")
 - default_end_date = @end_date.strftime("%Y/%m/%d")
 :javascript
   $(function() {
-    TrackerStats.add_datepicker('#start_date', "#{default_start_date}" );
-    TrackerStats.add_datepicker('#end_date', "#{default_end_date}" );
+    TimeTracker.add_datepicker('#start_date', "#{default_start_date}" );
+    TimeTracker.add_datepicker('#end_date', "#{default_end_date}" );
     $('div.tooltip_hotspot').tooltip({relative: true}).dynamic();
   });
   $(function() {
@@ -79,7 +75,3 @@
 
 - @tables.each_with_index do |table, idx|
   = render :partial => 'shared/table', locals: {table: table, table_id: "table_#{idx}"}
-
--#- @tkab_charts.each_with_index do |chart, idx|
--#  = render :partial => 'shared/chart', locals: {chart: chart, chart_id: "tkab_chart_#{idx}"}
-

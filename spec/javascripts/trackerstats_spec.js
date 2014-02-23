@@ -1,6 +1,6 @@
 require('/assets/application.js');
 
-describe("TrackerStats", function() {
+describe("TimeTracker", function() {
     function selector(id){
         return '#' + id;
     }
@@ -18,12 +18,12 @@ describe("TrackerStats", function() {
 
         it("adds a datepicker to the element with the given selector", function() {
             expect(input.hasClass(DATEPICKER_CLASS)).toBeFalsy();
-            TrackerStats.add_datepicker(selector(ID), "");
+            TimeTracker.add_datepicker(selector(ID), "");
             expect(input.hasClass(DATEPICKER_CLASS)).toBeTruthy();
         });
 
         it("adds a datepicker with the correct date format", function() {
-            TrackerStats.add_datepicker(selector(ID), "");
+            TimeTracker.add_datepicker(selector(ID), "");
             expect(input.datepicker("option", "dateFormat")).toBe("yy/mm/dd");
         });
 
@@ -42,7 +42,7 @@ describe("TrackerStats", function() {
             slider = $(selector(SLIDER_ID));
 
             iterations = ["", "2012/01/01", "2012/02/01", "2012/03/01"];
-            TrackerStats.set_property("iterations", iterations);
+            TimeTracker.set_property("iterations", iterations);
 
             $("#test").append("<input id='" + START_DATE_ID + "' type='text'/>");
             $("#test").append("<input id='" + END_DATE_ID + "' type='text'/>");
@@ -50,19 +50,19 @@ describe("TrackerStats", function() {
 
         it("adds a range slider to the page", function(){
             expect(slider.hasClass(SLIDER_CLASS)).toBeFalsy();
-            TrackerStats.setup_iterations_slider(selector(SLIDER_ID));
+            TimeTracker.setup_iterations_slider(selector(SLIDER_ID));
             expect(slider.hasClass(SLIDER_CLASS)).toBeTruthy();
             expect(slider.slider("option", "range")).toBeTruthy();
         });
 
         it("should use the pre-configured iterations", function(){
-            TrackerStats.setup_iterations_slider(selector(SLIDER_ID));
+            TimeTracker.setup_iterations_slider(selector(SLIDER_ID));
             expect(slider.slider("option", "min")).toEqual(0);
             expect(slider.slider("option", "max")).toEqual(3);
         });
 
         it("changing slider should update date selectors", function(){
-            TrackerStats.setup_iterations_slider(selector(SLIDER_ID),
+            TimeTracker.setup_iterations_slider(selector(SLIDER_ID),
                 selector(START_DATE_ID), selector(END_DATE_ID));
 
             // Case #1
@@ -84,7 +84,7 @@ describe("TrackerStats", function() {
             $(selector(START_DATE_ID)).val("2012/01/15");
             $(selector(END_DATE_ID)).val("2012/02/15");
 
-            TrackerStats.setup_iterations_slider(selector(SLIDER_ID),
+            TimeTracker.setup_iterations_slider(selector(SLIDER_ID),
                 selector(START_DATE_ID), selector(END_DATE_ID));
 
             expect(slider.slider("values", 0)).toBe(1, "start slider is incorrect");
@@ -96,7 +96,7 @@ describe("TrackerStats", function() {
             $(selector(START_DATE_ID)).val(iterations[1]);
             $(selector(END_DATE_ID)).val(iterations[3]);
 
-            TrackerStats.setup_iterations_slider(selector(SLIDER_ID),
+            TimeTracker.setup_iterations_slider(selector(SLIDER_ID),
                 selector(START_DATE_ID), selector(END_DATE_ID));
 
             expect(slider.slider("values", 0)).toBe(1, "start slider is incorrect");
@@ -107,7 +107,7 @@ describe("TrackerStats", function() {
             $(selector(START_DATE_ID)).val(iterations[0]);
             $(selector(END_DATE_ID)).val(iterations[1]);
 
-            TrackerStats.setup_iterations_slider(selector(SLIDER_ID),
+            TimeTracker.setup_iterations_slider(selector(SLIDER_ID),
                 selector(START_DATE_ID), selector(END_DATE_ID));
 
             expect(slider.slider("values", 0)).toBe(0, "start slider is incorrect");
@@ -118,7 +118,7 @@ describe("TrackerStats", function() {
             $(selector(START_DATE_ID)).val(iterations[iterations.length - 1]);
             $(selector(END_DATE_ID)).val("");
 
-            TrackerStats.setup_iterations_slider(selector(SLIDER_ID),
+            TimeTracker.setup_iterations_slider(selector(SLIDER_ID),
                 selector(START_DATE_ID), selector(END_DATE_ID));
 
             expect(slider.slider("values", 0)).toBe(iterations.length - 1, "start slider is incorrect");

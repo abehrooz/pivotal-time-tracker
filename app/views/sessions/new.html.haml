@@ -14,9 +14,9 @@
   -#      = form.submit "Retrieve Projects"
 
   = form_for :session, :url => login_path do |form|
-    = label_tag "api_token", "Your Pivotal Tracker API Token"
+    = label_tag "api_token", "Pivotal Tracker API Token"
     %p
-      You can find it
+      You can find your API token
       %a{:href=>"https://www.pivotaltracker.com/profile", :target=>"_blank"} here.
     = text_field_tag "api_token"
     = form.submit "Log In"

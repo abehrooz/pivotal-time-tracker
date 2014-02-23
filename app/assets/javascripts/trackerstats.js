@@ -1,6 +1,6 @@
 /*jslint sloppy: true, white: true, plusplus: true, maxerr: 50, indent: 4 */
-var TrackerStats;
-TrackerStats = {
+var TimeTracker;
+TimeTracker = {
     props: {},
     set_property: function(name, value){
         this.props[name] = value;
@@ -10,9 +10,9 @@ TrackerStats = {
     }
 };
 
-TrackerStats.add_datepicker = function (selector, value){
+TimeTracker.add_datepicker = function (selector, value){
     this.overlay = null;
-    var overlayId = 'TrackerStats_datepicker_overlay',
+    var overlayId = 'TimeTracker_datepicker_overlay',
         that = this;
     $(selector).datepicker({
         dateFormat: "yy/mm/dd",
@@ -31,7 +31,7 @@ TrackerStats.add_datepicker = function (selector, value){
     }).val(value);
 };
 
-TrackerStats.setup_iterations_slider = function(slider_sel, start_sel, finish_sel){
+TimeTracker.setup_iterations_slider = function(slider_sel, start_sel, finish_sel){
     var iterations = this.get_property("iterations") || [],
       start_val = 0, end_val = iterations.length - 1, date, i;
 

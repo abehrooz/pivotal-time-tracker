@@ -33,7 +33,7 @@ describe "Setting the API token" do
 
     it "can logout" do
       page.should have_css("a[href='#{logout_path}']")
-      click_link 'Logout'
+      click_link 'Log out'
       current_path == login_path
       page.should have_content('Successfully logged out.')
     end
@@ -135,9 +135,9 @@ def log_in_with_api_token(stub_projects = [])
 
   visit "/"
 
-  within "#via_api_token" do
+  within "#sign_in" do
     fill_in "API Token", with: "faker_token"
-    click_button "Retrieve Projects"
+    click_button "Log In"
   end
 end
 

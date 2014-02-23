@@ -34,8 +34,7 @@ class ProjectsController < ApplicationController
 
   def init_project_and_date_range
     @project  = Project.find(params[:id].to_i)
-    iterations = @project.iterations
-    valid_iterations = iterations.select do |it|
+    valid_iterations = @project.iterations.select do |it|
       (it.finish_date > Time.now.to_date) && (it.start_date <= Time.now.to_date)
     end
     current_iteration = valid_iterations.first
